@@ -1,9 +1,13 @@
 /* Teacher area: sign-in by e-mail link (or code), dashboard shell, admin invites.
    Word sets (stage 3), classes (stage 4) and statistics (stage 6) plug into this view. */
 import { supabase, siteUrl } from "./supabase.js";
+import demoData from "./data/demo-sets.json";
 
 const T = {
   ru: {
+    setsN: (n) => { const m10 = n % 10, m100 = n % 100; return n + " " + (m10 === 1 && m100 !== 11 ? "набор" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "набора" : "наборов"); },
+    openWs: "Открыть мастерскую", noSetsYet: "Пока нет ни одного набора.", importDemo: (n) => `Добавить наборы-примеры (${n})`,
+    importing: "Добавляю…", importedDemo: (n) => `Добавлено наборов: ${n}.`, andMore: (n) => `и ещё ${n}`,
     back: "← К игре", title: "Кабинет учителя", signout: "Выйти",
     loginT: "Вход для учителей", loginP: "Введите рабочую почту — пришлём ссылку для входа. Пароль не нужен.",
     email: "Почта", send: "Прислать ссылку", sending: "Отправляю…",
@@ -28,6 +32,9 @@ const T = {
     errInvite: "Не получилось добавить приглашение.", loadErr: "Не удалось загрузить данные. Обновите страницу."
   },
   en: {
+    setsN: (n) => n + (n === 1 ? " set" : " sets"),
+    openWs: "Open the workshop", noSetsYet: "No word sets yet.", importDemo: (n) => `Add example sets (${n})`,
+    importing: "Adding…", importedDemo: (n) => `${n} set(s) added.`, andMore: (n) => `and ${n} more`,
     back: "← Back to the game", title: "Teacher area", signout: "Sign out",
     loginT: "Teacher sign-in", loginP: "Enter your work e-mail and we'll send you a sign-in link. No password needed.",
     email: "E-mail", send: "Send link", sending: "Sending…",
@@ -52,6 +59,9 @@ const T = {
     errInvite: "Couldn't add the invitation.", loadErr: "Couldn't load data. Reload the page."
   },
   tr: {
+    setsN: (n) => n + " set",
+    openWs: "Atölyeyi aç", noSetsYet: "Henüz kelime seti yok.", importDemo: (n) => `Örnek setleri ekle (${n})`,
+    importing: "Ekleniyor…", importedDemo: (n) => `${n} set eklendi.`, andMore: (n) => `ve ${n} tane daha`,
     back: "← Oyuna dön", title: "Öğretmen alanı", signout: "Çıkış",
     loginT: "Öğretmen girişi", loginP: "İş e-postanızı yazın, size giriş bağlantısı gönderelim. Şifre gerekmez.",
     email: "E-posta", send: "Bağlantı gönder", sending: "Gönderiliyor…",
@@ -82,7 +92,7 @@ const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&":
 const fmtDate = (d) => { try { return new Date(d).toLocaleDateString(lang() === "tr" ? "tr-TR" : lang() === "en" ? "en-GB" : "ru-RU", { day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ""; } };
 
 let root = null;
-let state = { view: "loading", session: null, teacher: null, sentTo: "", msg: null, busy: false, admin: { teachers: [], invites: [] }, confirmInvite: null };
+let state = { view: "loading", session: null, teacher: null, sentTo: "", msg: null, busy: false, admin: { teachers: [], invites: [] }, confirmInvite: null, sets: [], importing: false };
 let authHooked = false;
 
 export async function showTeacher(el) {
@@ -114,6 +124,7 @@ async function load() {
     if (error) throw error;
     state.teacher = me;
     state.view = me ? "home" : "noaccess";
+    if (me) state.sets = await loadMySets();
     if (me && me.is_admin) await loadAdmin();
   } catch (e) {
     state.view = state.session ? "home" : "login";
@@ -214,7 +225,7 @@ function homeHtml() {
   const me = state.teacher || {};
   const tile = (title, p, n) => `<div class="tv-tile" aria-disabled="true"><b>${esc(title)}</b><span>${esc(p)}</span><em>${esc(t("soon", n))}</em></div>`;
   let html = `<section class="card tv-wide"><p class="kicker">${esc(t("hello", me.email || ""))}${me.is_admin ? ` · ${esc(t("admin"))}` : ""}</p>
-    <h1 class="h1">${esc(t("tilesT"))}</h1><div class="tv-tiles">${tile(t("tSets"), t("tSetsP"), 3)}${tile(t("tClasses"), t("tClassesP"), 4)}${tile(t("tStats"), t("tStatsP"), 6)}</div></section>`;
+    <h1 class="h1">${esc(t("tilesT"))}</h1><div class="tv-tiles">${setsTile()}${tile(t("tClasses"), t("tClassesP"), 4)}${tile(t("tStats"), t("tStatsP"), 6)}</div></section>`;
   if (me.is_admin) {
     const a = state.admin;
     html += `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("teachersT"))}</h2><ul class="tv-list">` +
@@ -228,6 +239,66 @@ function homeHtml() {
     </section>`;
   }
   return html;
+}
+
+function missingDemo() {
+  const have = new Set(state.sets.map((x) => x.title.trim().toLowerCase()));
+  return demoData.sets.filter((x) => !have.has(x.title.trim().toLowerCase()));
+}
+function setsTile() {
+  const list = state.sets, miss = missingDemo();
+  const names = list.slice(0, 5).map((x) => `<li>${esc(x.title || "—")}${x.grade ? ` <i>${esc(x.grade)}</i>` : ""}</li>`).join("");
+  return `<div class="tv-tile on"><b>${esc(t("tSets"))}</b><span>${esc(list.length ? t("setsN", list.length) : t("noSetsYet"))}</span>
+    ${list.length ? `<ul class="tv-mini">${names}${list.length > 5 ? `<li><i>${esc(t("andMore", list.length - 5))}</i></li>` : ""}</ul>` : ""}
+    <div class="row"><a class="btn small" href="#/teacher/sets">${esc(t("openWs"))}</a>
+    ${miss.length ? `<button class="btn ghost small" type="button" data-act="demo"${state.importing ? " disabled" : ""}>${esc(state.importing ? t("importing") : t("importDemo", miss.length))}</button>` : ""}</div></div>`;
+}
+async function importDemo() {
+  const miss = missingDemo(); if (!miss.length) return;
+  state.importing = true; render();
+  const { error } = await supabase.from("word_sets").insert(miss.map((x) => ({ owner_id: state.teacher.id, title: x.title, grade: x.grade || "", lang: x.lang || "en-GB", cats: x.cats })));
+  state.importing = false;
+  if (error) state.msg = { kind: "err", text: t("loadErr") };
+  else { state.msg = { kind: "ok", text: t("importedDemo", miss.length) }; state.sets = await loadMySets(); }
+  render();
+}
+
+/* ── word-set library (used by the workshop in the game shell) ── */
+const isUuid = (v) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(v));
+export async function loadMySets() {
+  const { data, error } = await supabase.from("word_sets").select("id,title,grade,lang,cats,created_at").order("created_at");
+  if (error) throw error;
+  return (data || []).map((r) => ({ id: r.id, title: r.title, grade: r.grade, lang: r.lang, cats: Array.isArray(r.cats) ? r.cats : [] }));
+}
+export async function saveMySets(list, ownerId) {
+  const { data: existing, error: e1 } = await supabase.from("word_sets").select("id");
+  if (e1) throw e1;
+  const known = new Set((existing || []).map((r) => r.id));
+  const keep = new Set(list.filter((x) => known.has(x.id)).map((x) => x.id));
+  const del = [...known].filter((id) => !keep.has(id));
+  if (del.length) { const { error } = await supabase.from("word_sets").delete().in("id", del); if (error) throw error; }
+  const row = (x) => ({ owner_id: ownerId, title: x.title || "", grade: x.grade || "", lang: x.lang || "en-GB", cats: x.cats || [] });
+  const olds = list.filter((x) => known.has(x.id));
+  if (olds.length) { const { error } = await supabase.from("word_sets").upsert(olds.map((x) => ({ id: x.id, ...row(x) }))); if (error) throw error; }
+  const news = list.filter((x) => !known.has(x.id));
+  let inserted = [];
+  if (news.length) { const { data, error } = await supabase.from("word_sets").insert(news.map(row)).select("id"); if (error) throw error; inserted = data || []; }
+  let k = 0;
+  const out = list.map((x) => (known.has(x.id) ? x : { ...x, id: (inserted[k++] || {}).id || x.id }));
+  state.sets = out;
+  return out;
+}
+// Opens the game's workshop on the teacher's own library. Needs a signed-in teacher.
+export async function openSetsWorkshop(api) {
+  const { data } = await supabase.auth.getSession();
+  const session = data.session;
+  if (!session) { location.hash = "#/teacher"; return; }
+  const { data: me } = await supabase.from("teachers").select("id").eq("id", session.user.id).maybeSingle();
+  if (!me) { location.hash = "#/teacher"; return; }
+  let sets = [];
+  try { sets = await loadMySets(); } catch (e) { location.hash = "#/teacher"; return; }
+  if (location.hash.indexOf("#/teacher/sets") !== 0) return;
+  api.openWorkshop({ sets, onSave: (list) => saveMySets(list, me.id), onClose: () => { if (location.hash.indexOf("#/teacher/sets") === 0) location.hash = "#/teacher"; } });
 }
 
 function wire() {
@@ -246,6 +317,7 @@ function wire() {
       else if (a === "rm") { state.confirmInvite = b.dataset.email; render(); }
       else if (a === "rm-no") { state.confirmInvite = null; render(); }
       else if (a === "rm-yes") removeInvite(b.dataset.email);
+      else if (a === "demo") importDemo();
     };
   });
 }

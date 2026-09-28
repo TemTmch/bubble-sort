@@ -7,6 +7,7 @@ var STANDALONE = !(window.claude && typeof window.claude.use === "function");
 var TEACHER_UI = false;
 
 export function startApp() {
+var API = {};
 (function () {
 "use strict";
 
@@ -322,6 +323,10 @@ Object.assign(I18N.tr, {
   printCards: "Sınıflandırma kartları", printSheet: "Çalışma kâğıdı",
   printHelp: "Bir HTML dosyası iner. Tarayıcıda açıp Yazdır'a (Ctrl+P) basın — yazıcıya ya da «PDF olarak kaydet». Cevaplar çalışma kâğıdının son sayfasında."
 });
+I18N.ru.saveDb = "Сохранить"; I18N.en.saveDb = "Save"; I18N.tr.saveDb = "Kaydet";
+I18N.ru.savedDb = "Сохранено в вашей библиотеке."; I18N.en.savedDb = "Saved to your library."; I18N.tr.savedDb = "Kitaplığınıza kaydedildi.";
+I18N.ru.saveDbErr = "Не удалось сохранить. Проверьте интернет и попробуйте снова."; I18N.en.saveDbErr = "Couldn't save. Check your connection and try again."; I18N.tr.saveDbErr = "Kaydedilemedi. Bağlantınızı kontrol edip tekrar deneyin.";
+I18N.ru.dbHint = "Наборы видите только вы. Ученики получат их через классы."; I18N.en.dbHint = "Only you can see these sets. Pupils get them through classes."; I18N.tr.dbHint = "Bu setleri yalnızca siz görürsünüz. Öğrenciler onlara sınıflar üzerinden ulaşır.";
 I18N.ru.teacherLogin = "Вход для учителей →"; I18N.en.teacherLogin = "Teacher sign-in →"; I18N.tr.teacherLogin = "Öğretmen girişi →";
 I18N.ru.teacherEntry = "Я учитель — открыть мастерскую наборов";
 I18N.en.teacherEntry = "I'm a teacher — open the word-set workshop";
@@ -1418,17 +1423,23 @@ function copyOf(o) { return JSON.parse(JSON.stringify(o)); }
 function catsForCheck(s) { return wsTab === "text" && s._text != null ? parseSetText(s._text) : s.cats; }
 function changed() { markDirty(); renderSide(); renderSetList(); }
 
+var dbMode = null; // {onSave(sets) -> Promise<sets>, onClose()} when the workshop edits the teacher's library in the database
 function openTeacher() {
   if (!draft) draft = SETS.map(copyOf);
   if (!curId || !draft.some(function (s) { return s.id === curId; })) curId = draft[0] ? draft[0].id : null;
   $("#teacher").hidden = false;
   renderTeacher();
 }
-function closeTeacher() { if (aiCtl) aiCtl.abort(); leaveText(); $("#teacher").hidden = true; }
+function closeTeacher(keepOpenMode) {
+  if (aiCtl) aiCtl.abort(); leaveText(); $("#teacher").hidden = true;
+  if (dbMode && !keepOpenMode) dbMode.onClose();
+}
 
 function renderTeacher() {
   var sheet = $("#teacher .sheet"), s = curSet();
-  var tabs = [["cards", t("tabCards")], ["text", t("tabText")], ["file", t("tabFile")], ["ai", t("tabAI")]];
+  var tabs = [["cards", t("tabCards")], ["text", t("tabText")], ["file", t("tabFile")]];
+  if (!STANDALONE || sampleNS) tabs.push(["ai", t("tabAI")]);
+  if (wsTab === "ai" && tabs.length === 3) wsTab = "cards";
   var html = '<div class="sheet-head"><h2 id="wsTitle">' + esc(t("wsTitle")) + '</h2><span class="dirty" id="dirtyFlag"' + (dirty ? "" : " hidden") + ">" + esc(t("unsaved")) + '</span><button class="btn ghost small" type="button" id="wsClose">' + esc(t("close")) + "</button></div>";
   html += '<div class="sheet-body"><nav class="setlist" id="setList"></nav><div class="editor"><div class="main">';
   if (s) {
@@ -1443,7 +1454,7 @@ function renderTeacher() {
   html += '<aside class="side" id="side"></aside></div></div>';
   html += '<div class="sheet-foot"><span class="status" id="wsStatus"></span>' +
     '<button class="btn ghost small" type="button" id="copyJson">' + esc(t("copyJson")) + "</button>" +
-    '<button class="btn" type="button" id="saveBtn">' + esc(t("save")) + "</button></div>" +
+    '<button class="btn" type="button" id="saveBtn">' + esc(dbMode ? t("saveDb") : t("save")) + "</button></div>" +
     '<div id="copyWrap" class="copywrap" hidden><textarea class="jsonbox" id="copyBox" readonly aria-label="JSON"></textarea></div>';
   sheet.innerHTML = html;
   renderSetList();
@@ -1455,11 +1466,12 @@ function renderTeacher() {
   $$(".tab", sheet).forEach(function (b) {
     b.onclick = function () { if (wsTab === "text") leaveText(); wsTab = b.dataset.tab; lsSet("bs.wsTab", wsTab); selChip = null; renderTeacher(); };
   });
-  $("#wsClose").onclick = closeTeacher;
+  $("#wsClose").onclick = function () { closeTeacher(); };
   $("#saveBtn").onclick = saveForStudents;
   $("#copyJson").onclick = function () { copyText(JSON.stringify({ version: 1, sets: draftClean() }, null, 2), t("copied")); };
   renderPane(); renderSide();
   if (statusMsg) setStatus(statusMsg.text, statusMsg.kind);
+  else if (dbMode) setStatus(dirty ? "" : t("dbHint"), "");
   else if (!artifactNS) setStatus(t("saveNA"), "");
   else if (capsChecked && !canEdit) setStatus(t("notEditor"), "");
 }
@@ -1494,7 +1506,7 @@ function renderSide() {
   $("#tryBtn").onclick = function () {
     var c = cleanSet(s);
     if (!validate(c.cats).playable) { setStatus(t("needPlayable"), "err"); return; }
-    closeTeacher(); startGame(c, 1, { draft: true });
+    closeTeacher(true); startGame(c, 1, { draft: true });
   };
   $("#delBtn").onclick = function () { confirmDel = true; renderDelBox(); };
   renderDelBox();
@@ -2091,8 +2103,25 @@ function buildPage(data) {
     "<" + sc + " id=\"bs-js\">" + js + "</" + sc + ">\n</body>\n</html>\n";
 }
 
+async function saveToDb() {
+  var btn = $("#saveBtn"); btn.disabled = true; setStatus(t("saving"), "");
+  try {
+    leaveText();
+    var saved = await dbMode.onSave(draftClean());
+    var oldIdx = draft.findIndex(function (x) { return x.id === curId; });
+    draft = saved.map(copyOf);
+    curId = draft[Math.max(0, Math.min(oldIdx, draft.length - 1))] ? draft[Math.max(0, Math.min(oldIdx, draft.length - 1))].id : null;
+    dirty = false; $("#teacherDot").hidden = true;
+    statusMsg = { text: t("savedDb"), kind: "ok" };
+    renderTeacher();
+  } catch (e) {
+    btn.disabled = false;
+    setStatus(t("saveDbErr") + (e && e.message ? " (" + e.message + ")" : ""), "err");
+  }
+}
 async function saveForStudents() {
   if (!draft) return;
+  if (dbMode) return saveToDb();
   if (!artifactNS) { setStatus(t("saveNA"), "err"); return; }
   var html = buildPage({ version: 1, sets: draftClean() });
   var btn = $("#saveBtn"); btn.disabled = true; setStatus(t("saving"), "");
@@ -2192,5 +2221,18 @@ initPixi().then(function () {
   window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { if (G && G.demo) startDemo(); }, 250); });
 });
 initCaps();
+
+/* ── API for the site shell (teacher area) ── */
+API.openWorkshop = function (opts) {
+  dbMode = { onSave: opts.onSave, onClose: opts.onClose };
+  if (!(dirty && draft)) { draft = (opts.sets || []).map(copyOf); dirty = false; curId = null; }
+  statusMsg = null;
+  if (wsTab === "ai" && STANDALONE && !sampleNS) wsTab = "cards";
+  goHome();
+  openTeacher();
+};
+API.closeWorkshop = function () { if (!$("#teacher").hidden) closeTeacher(true); };
+API.isDirty = function () { return !!(dbMode && dirty); };
 })();
+return API;
 }

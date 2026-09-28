@@ -14,7 +14,7 @@ Interface languages: Russian, English, Turkish.
 
 1. ✅ Standalone site: the game on demo word sets, GitHub Pages deploy.
 2. ✅ Database schema (`supabase/schema.sql`, setup guide in `supabase/SETUP.md`), teacher sign-in by e-mail link, invitations.
-3. Teacher word-set library (cards, text, CSV/Excel import, printable worksheets).
+3. ✅ Teacher word-set library in the database (`#/teacher/sets`): cards, text, CSV/Excel import, printable worksheets, example sets.
 4. Classes with join links / QR codes.
 5. Pupil access by class code, progress saved on the server.
 6. Class statistics.
