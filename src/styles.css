@@ -294,3 +294,33 @@ button{cursor:pointer}
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
 }
+
+/* ── teacher area ─────────────────── */
+#teacher-view{min-height:100%;display:flex;flex-direction:column;background:var(--ground)}
+.tv-bar a.brand{color:inherit;text-decoration:none}
+.tv-bar a.chipbtn{text-decoration:none;color:inherit}
+.tv-bar .tools{margin-left:auto}
+.tv-title{font-weight:800;color:var(--ink-soft);font-size:14px}
+.tv-who{font-size:13px;color:var(--ink-soft);font-weight:700;max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tv-main{flex:1;display:flex;flex-direction:column;align-items:center;gap:18px;padding:28px 16px 48px}
+.tv-card{max-width:460px;margin:0;display:grid;gap:14px}
+.tv-card .h1{margin:0}
+.tv-card .help{margin:0}
+.tv-wide{max-width:860px;margin:0}
+.tv-note{padding-top:12px;border-top:1px solid var(--line)}
+.tv-code{display:grid;gap:12px;padding-top:12px;border-top:1px solid var(--line)}
+.tv-msg{margin:0;max-width:860px;width:100%;padding:10px 14px;border-radius:14px;font-weight:700;font-size:14px}
+.tv-msg.err{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.tv-msg.ok{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.tv-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.tv-tile{display:grid;gap:4px;align-content:start;border:1.5px dashed var(--line);border-radius:18px;padding:14px 16px;background:var(--panel-2)}
+.tv-tile b{font-size:16px}
+.tv-tile span{font-size:13.5px;color:var(--ink-soft)}
+.tv-tile em{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--warn)}
+.tv-list{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:6px}
+.tv-list li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:9px 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel-2)}
+.tv-list b{font-weight:800;overflow-wrap:anywhere}
+.tv-date{font-size:12.5px;color:var(--ink-soft);margin-left:auto}
+.tv-confirm{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:700}
+.tv-invite input{flex:1;min-width:200px;border:1px solid var(--line);background:var(--ground-2);border-radius:12px;padding:9px 12px}
+@media (max-width:560px){.tv-title{display:none}.tv-who{display:none}}

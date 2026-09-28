@@ -322,6 +322,7 @@ Object.assign(I18N.tr, {
   printCards: "Sınıflandırma kartları", printSheet: "Çalışma kâğıdı",
   printHelp: "Bir HTML dosyası iner. Tarayıcıda açıp Yazdır'a (Ctrl+P) basın — yazıcıya ya da «PDF olarak kaydet». Cevaplar çalışma kâğıdının son sayfasında."
 });
+I18N.ru.teacherLogin = "Вход для учителей →"; I18N.en.teacherLogin = "Teacher sign-in →"; I18N.tr.teacherLogin = "Öğretmen girişi →";
 I18N.ru.teacherEntry = "Я учитель — открыть мастерскую наборов";
 I18N.en.teacherEntry = "I'm a teacher — open the word-set workshop";
 I18N.tr.teacherEntry = "Öğretmenim — kelime seti atölyesini aç";
@@ -1244,6 +1245,7 @@ function renderHome() {
     t("rules").map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + '</ul><h2 class="h2">' + esc(t("chooseSet")) + "</h2>" +
     (cards ? '<div class="sets">' + cards + "</div>" : '<p class="empty">' + esc(t("noSets")) + "</p>") +
     '<p class="kbdhelp">' + t("kbdHelp") + "</p>" +
+    (STANDALONE && !TEACHER_UI ? '<p class="teacher-entry"><a class="linkbtn" href="#/teacher">' + esc(t("teacherLogin")) + "</a></p>" : "") +
     (canEdit || !TEACHER_UI ? "" : '<p class="teacher-entry"><button class="linkbtn" type="button" id="teacherEntry">' + esc(t("teacherEntry")) + "</button></p>") + "</div>";
   $$(".setcard", h).forEach(function (btn) {
     btn.onclick = function () { var s = SETS.find(function (x) { return x.id === btn.dataset.set; }); if (s) openLevels(s); };
