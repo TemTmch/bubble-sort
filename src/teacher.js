@@ -2,12 +2,36 @@
    Word sets (stage 3), classes (stage 4) and statistics (stage 6) plug into this view. */
 import { supabase, siteUrl } from "./supabase.js";
 import demoData from "./data/demo-sets.json";
+import qrcode from "qrcode-generator";
 
 const T = {
   ru: {
     setsN: (n) => { const m10 = n % 10, m100 = n % 100; return n + " " + (m10 === 1 && m100 !== 11 ? "набор" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "набора" : "наборов"); },
     openWs: "Открыть мастерскую", noSetsYet: "Пока нет ни одного набора.", importDemo: (n) => `Добавить наборы-примеры (${n})`,
     importing: "Добавляю…", importedDemo: (n) => `Добавлено наборов: ${n}.`, andMore: (n) => `и ещё ${n}`,
+    classesN: (n) => { const m10 = n % 10, m100 = n % 100; return n + " " + (m10 === 1 && m100 !== 11 ? "класс" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "класса" : "классов"); },
+    pupilsN: (n) => { const m10 = n % 10, m100 = n % 100; return n + " " + (m10 === 1 && m100 !== 11 ? "ученик" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "ученика" : "учеников"); },
+    openClasses: "Открыть классы", noClassesYet: "Классов пока нет.",
+    classesT: "Классы", classesP: "Класс — это группа учеников и наборы слов для неё. Ученики входят по ссылке или коду класса.",
+    newClassPh: "Название, например 3B English", createClass: "Создать класс", archiveT: "Архив", allClasses: "← Все классы",
+    code: "Код класса", studentLink: "Ссылка для учеников", copyLink: "Скопировать ссылку", linkCopied: "Ссылка скопирована.",
+    copyFail: "Не получилось скопировать — выделите ссылку и скопируйте вручную.",
+    qrPng: "Скачать QR-код", projector: "Показать на экране", newCode: "Новый код",
+    newCodeQ: "Старый код и ссылка перестанут работать. Ученики, которые уже вошли, останутся в классе.", codeChanged: "Код класса обновлён.",
+    joinHelp: "Ученики открывают ссылку (или сканируют QR-код) и вводят своё имя. Можно и так: главная страница сайта → «Код класса».",
+    rename: "Сохранить название", renamed: "Название сохранено.",
+    classSets: "Наборы класса", classSetsP: "Ученики увидят эти наборы в таком порядке.",
+    noClassSets: "Наборы ещё не выбраны.", addSets: "Добавить из библиотеки", allAdded: "Все ваши наборы уже в классе.",
+    libEmpty: "В вашей библиотеке пока нет наборов.", toLibrary: "Открыть мастерскую",
+    up: "Выше", down: "Ниже", take: "Убрать из класса", add: "Добавить", saveSets: "Сохранить наборы класса", setsSaved: "Наборы класса сохранены.",
+    unsavedSets: "Есть несохранённые изменения в наборах класса.",
+    studentsT: "Ученики", noStudents: "Пока никто не вошёл. Дайте ученикам ссылку или код класса.",
+    joined: "вошёл", lastSeen: "был(а)", removeStudent: "Удалить", removeStudentQ: "Удалить ученика и его прогресс?",
+    manageT: "Управление классом", archiveBtn: "В архив", unarchiveBtn: "Вернуть из архива",
+    archiveP: "В архивном классе ученики не могут войти, но все данные сохраняются.", archived: "архив",
+    deleteClass: "Удалить класс", deleteClassQ: "Удалить класс вместе со всеми учениками и их прогрессом? Отменить нельзя.",
+    classDeleted: "Класс удалён.", notFound: "Класс не найден.", saveErrGen: "Не удалось сохранить. Проверьте интернет и попробуйте снова.",
+    close: "Закрыть", scanOr: "Отсканируйте QR-код или откройте",
     back: "← К игре", title: "Кабинет учителя", signout: "Выйти",
     loginT: "Вход для учителей", loginP: "Введите рабочую почту — пришлём ссылку для входа. Пароль не нужен.",
     email: "Почта", send: "Прислать ссылку", sending: "Отправляю…",
@@ -35,6 +59,29 @@ const T = {
     setsN: (n) => n + (n === 1 ? " set" : " sets"),
     openWs: "Open the workshop", noSetsYet: "No word sets yet.", importDemo: (n) => `Add example sets (${n})`,
     importing: "Adding…", importedDemo: (n) => `${n} set(s) added.`, andMore: (n) => `and ${n} more`,
+    classesN: (n) => n + (n === 1 ? " class" : " classes"),
+    pupilsN: (n) => n + (n === 1 ? " pupil" : " pupils"),
+    openClasses: "Open classes", noClassesYet: "No classes yet.",
+    classesT: "Classes", classesP: "A class is a group of pupils plus the word sets for it. Pupils join with the class link or code.",
+    newClassPh: "Name, e.g. 3B English", createClass: "Create class", archiveT: "Archive", allClasses: "← All classes",
+    code: "Class code", studentLink: "Link for pupils", copyLink: "Copy link", linkCopied: "Link copied.",
+    copyFail: "Couldn't copy — select the link and copy it by hand.",
+    qrPng: "Download QR code", projector: "Show on screen", newCode: "New code",
+    newCodeQ: "The old code and link will stop working. Pupils who already joined stay in the class.", codeChanged: "Class code updated.",
+    joinHelp: "Pupils open the link (or scan the QR code) and type their name. Or: the site's home page → “Class code”.",
+    rename: "Save name", renamed: "Name saved.",
+    classSets: "Class word sets", classSetsP: "Pupils see these sets in this order.",
+    noClassSets: "No sets chosen yet.", addSets: "Add from your library", allAdded: "All your sets are already in this class.",
+    libEmpty: "Your library has no sets yet.", toLibrary: "Open the workshop",
+    up: "Up", down: "Down", take: "Remove from class", add: "Add", saveSets: "Save class sets", setsSaved: "Class sets saved.",
+    unsavedSets: "Class sets have unsaved changes.",
+    studentsT: "Pupils", noStudents: "Nobody has joined yet. Give pupils the class link or code.",
+    joined: "joined", lastSeen: "last seen", removeStudent: "Remove", removeStudentQ: "Remove this pupil and their progress?",
+    manageT: "Manage class", archiveBtn: "Archive", unarchiveBtn: "Restore from archive",
+    archiveP: "Pupils can't join an archived class, but all data is kept.", archived: "archived",
+    deleteClass: "Delete class", deleteClassQ: "Delete the class with all its pupils and their progress? This can't be undone.",
+    classDeleted: "Class deleted.", notFound: "Class not found.", saveErrGen: "Couldn't save. Check your connection and try again.",
+    close: "Close", scanOr: "Scan the QR code or open",
     back: "← Back to the game", title: "Teacher area", signout: "Sign out",
     loginT: "Teacher sign-in", loginP: "Enter your work e-mail and we'll send you a sign-in link. No password needed.",
     email: "E-mail", send: "Send link", sending: "Sending…",
@@ -62,6 +109,29 @@ const T = {
     setsN: (n) => n + " set",
     openWs: "Atölyeyi aç", noSetsYet: "Henüz kelime seti yok.", importDemo: (n) => `Örnek setleri ekle (${n})`,
     importing: "Ekleniyor…", importedDemo: (n) => `${n} set eklendi.`, andMore: (n) => `ve ${n} tane daha`,
+    classesN: (n) => n + " sınıf",
+    pupilsN: (n) => n + " öğrenci",
+    openClasses: "Sınıfları aç", noClassesYet: "Henüz sınıf yok.",
+    classesT: "Sınıflar", classesP: "Sınıf, bir öğrenci grubu ve ona ait kelime setleridir. Öğrenciler sınıf bağlantısı veya koduyla katılır.",
+    newClassPh: "Ad, ör. 3B English", createClass: "Sınıf oluştur", archiveT: "Arşiv", allClasses: "← Tüm sınıflar",
+    code: "Sınıf kodu", studentLink: "Öğrenci bağlantısı", copyLink: "Bağlantıyı kopyala", linkCopied: "Bağlantı kopyalandı.",
+    copyFail: "Kopyalanamadı — bağlantıyı seçip elle kopyalayın.",
+    qrPng: "QR kodu indir", projector: "Ekranda göster", newCode: "Yeni kod",
+    newCodeQ: "Eski kod ve bağlantı çalışmayı bırakır. Zaten katılmış öğrenciler sınıfta kalır.", codeChanged: "Sınıf kodu yenilendi.",
+    joinHelp: "Öğrenciler bağlantıyı açar (veya QR kodu okutur) ve adlarını yazar. Ya da: sitenin ana sayfası → «Sınıf kodu».",
+    rename: "Adı kaydet", renamed: "Ad kaydedildi.",
+    classSets: "Sınıfın setleri", classSetsP: "Öğrenciler bu setleri bu sırayla görür.",
+    noClassSets: "Henüz set seçilmedi.", addSets: "Kitaplığınızdan ekleyin", allAdded: "Tüm setleriniz zaten bu sınıfta.",
+    libEmpty: "Kitaplığınızda henüz set yok.", toLibrary: "Atölyeyi aç",
+    up: "Yukarı", down: "Aşağı", take: "Sınıftan çıkar", add: "Ekle", saveSets: "Sınıf setlerini kaydet", setsSaved: "Sınıf setleri kaydedildi.",
+    unsavedSets: "Sınıf setlerinde kaydedilmemiş değişiklikler var.",
+    studentsT: "Öğrenciler", noStudents: "Henüz kimse katılmadı. Öğrencilere sınıf bağlantısını veya kodunu verin.",
+    joined: "katıldı", lastSeen: "son görülme", removeStudent: "Sil", removeStudentQ: "Bu öğrenci ve ilerlemesi silinsin mi?",
+    manageT: "Sınıf yönetimi", archiveBtn: "Arşive al", unarchiveBtn: "Arşivden çıkar",
+    archiveP: "Arşivdeki sınıfa öğrenciler katılamaz, ama tüm veriler saklanır.", archived: "arşiv",
+    deleteClass: "Sınıfı sil", deleteClassQ: "Sınıf tüm öğrencileri ve ilerlemeleriyle birlikte silinsin mi? Geri alınamaz.",
+    classDeleted: "Sınıf silindi.", notFound: "Sınıf bulunamadı.", saveErrGen: "Kaydedilemedi. Bağlantınızı kontrol edip tekrar deneyin.",
+    close: "Kapat", scanOr: "QR kodu okutun veya açın:",
     back: "← Oyuna dön", title: "Öğretmen alanı", signout: "Çıkış",
     loginT: "Öğretmen girişi", loginP: "İş e-postanızı yazın, size giriş bağlantısı gönderelim. Şifre gerekmez.",
     email: "E-posta", send: "Bağlantı gönder", sending: "Gönderiliyor…",
@@ -92,8 +162,10 @@ const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&":
 const fmtDate = (d) => { try { return new Date(d).toLocaleDateString(lang() === "tr" ? "tr-TR" : lang() === "en" ? "en-GB" : "ru-RU", { day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ""; } };
 
 let root = null;
-let state = { view: "loading", session: null, teacher: null, sentTo: "", msg: null, busy: false, admin: { teachers: [], invites: [] }, confirmInvite: null, sets: [], importing: false };
-let authHooked = false;
+let state = { view: "loading", session: null, teacher: null, sentTo: "", msg: null, busy: false, admin: { teachers: [], invites: [] }, confirmInvite: null, sets: [], importing: false,
+  page: "home", classes: [], cls: null, confirm: null, projector: false };
+let authHooked = false, lastSub = null;
+const sub = () => location.hash.replace(/^#\/teacher\/?/, "").split("?")[0];
 
 export async function showTeacher(el) {
   root = el;
@@ -111,8 +183,28 @@ export async function showTeacher(el) {
   const h = location.hash;
   if (/error_description=/.test(h)) state.msg = { kind: "err", text: t("errLink") };
   if (/access_token=|error_description=/.test(h)) setTimeout(() => history.replaceState(null, "", location.pathname + location.search + "#/teacher"), 400);
+  if (state.teacher && state.session) { await loadPage(); return; }
   render();
   await load();
+}
+
+async function loadPage() {
+  const s = sub();
+  if (s !== lastSub) { if (lastSub !== null) state.msg = state.keepMsg ? state.msg : null; state.confirm = null; state.projector = false; lastSub = s; }
+  state.keepMsg = false;
+  state.page = s.indexOf("classes/") === 0 ? "class" : s === "classes" ? "classes" : "home";
+  try {
+    if (state.page === "home") {
+      [state.sets, state.classes] = await Promise.all([loadMySets(), loadClasses()]);
+      if (state.teacher.is_admin) await loadAdmin();
+    } else if (state.page === "classes") {
+      state.classes = await loadClasses();
+    } else {
+      await loadClassDetail(s.slice(8));
+      if (!state.cls) { state.msg = { kind: "err", text: t("notFound") }; state.keepMsg = true; location.hash = "#/teacher/classes"; return; }
+    }
+  } catch (e) { state.msg = { kind: "err", text: t("loadErr") }; }
+  render();
 }
 
 async function load() {
@@ -124,8 +216,7 @@ async function load() {
     if (error) throw error;
     state.teacher = me;
     state.view = me ? "home" : "noaccess";
-    if (me) state.sets = await loadMySets();
-    if (me && me.is_admin) await loadAdmin();
+    if (me) { lastSub = null; await loadPage(); return; }
   } catch (e) {
     state.view = state.session ? "home" : "login";
     state.msg = { kind: "err", text: t("loadErr") };
@@ -216,8 +307,8 @@ function render() {
       <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(t("codeBtn"))}</button><button class="btn ghost" type="button" data-act="again">${esc(t("again"))}</button></div></form></div>`;
   else if (state.view === "noaccess") inner = `<div class="card tv-card"><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("noAccessT"))}</h1>
       <p class="help">${esc(t("noAccessP", state.session ? state.session.user.email : ""))}</p><div class="row"><button class="btn ghost" type="button" data-act="signout">${esc(t("signout"))}</button></div></div>`;
-  else if (state.view === "home") inner = homeHtml();
-  root.innerHTML = shell(inner);
+  else if (state.view === "home") inner = state.page === "classes" ? classesHtml() : state.page === "class" && state.cls ? classHtml() : homeHtml();
+  root.innerHTML = shell(inner) + (state.projector && state.cls ? projectorHtml() : "");
   wire();
 }
 
@@ -225,7 +316,7 @@ function homeHtml() {
   const me = state.teacher || {};
   const tile = (title, p, n) => `<div class="tv-tile" aria-disabled="true"><b>${esc(title)}</b><span>${esc(p)}</span><em>${esc(t("soon", n))}</em></div>`;
   let html = `<section class="card tv-wide"><p class="kicker">${esc(t("hello", me.email || ""))}${me.is_admin ? ` · ${esc(t("admin"))}` : ""}</p>
-    <h1 class="h1">${esc(t("tilesT"))}</h1><div class="tv-tiles">${setsTile()}${tile(t("tClasses"), t("tClassesP"), 4)}${tile(t("tStats"), t("tStatsP"), 6)}</div></section>`;
+    <h1 class="h1">${esc(t("tilesT"))}</h1><div class="tv-tiles">${setsTile()}${classesTile()}${tile(t("tStats"), t("tStatsP"), 6)}</div></section>`;
   if (me.is_admin) {
     const a = state.admin;
     html += `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("teachersT"))}</h2><ul class="tv-list">` +
@@ -301,17 +392,211 @@ export async function openSetsWorkshop(api) {
   api.openWorkshop({ sets, onSave: (list) => saveMySets(list, me.id), onClose: () => { if (location.hash.indexOf("#/teacher/sets") === 0) location.hash = "#/teacher"; } });
 }
 
+/* ── classes ── */
+const CODE_ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const randomCode = () => Array.from({ length: 6 }, () => CODE_ABC[Math.floor(Math.random() * CODE_ABC.length)]).join("");
+const classLink = (code) => siteUrl() + "#/c/" + code;
+const cnt = (v) => (Array.isArray(v) && v[0] && typeof v[0].count === "number" ? v[0].count : 0);
+
+async function loadClasses() {
+  const { data, error } = await supabase.from("classes").select("id,name,join_code,archived,created_at,class_sets(count),students(count)").order("created_at");
+  if (error) throw error;
+  return (data || []).map((c) => ({ id: c.id, name: c.name, code: c.join_code, archived: c.archived, created_at: c.created_at, nSets: cnt(c.class_sets), nStudents: cnt(c.students) }));
+}
+async function loadClassDetail(id) {
+  const [cq, csq, stq, sets] = await Promise.all([
+    supabase.from("classes").select("*").eq("id", id).maybeSingle(),
+    supabase.from("class_sets").select("set_id,position").eq("class_id", id).order("position"),
+    supabase.from("students").select("id,display_name,created_at,last_seen").eq("class_id", id).order("display_name"),
+    loadMySets()
+  ]);
+  if (cq.error) throw cq.error;
+  if (!cq.data) { state.cls = null; return; }
+  const own = new Set(sets.map((x) => x.id));
+  state.cls = { row: cq.data, sets, chosen: (csq.data || []).map((r) => r.set_id).filter((sid) => own.has(sid)), students: stq.data || [], dirty: false, nameDraft: null };
+}
+function classesTile() {
+  const list = state.classes.filter((c) => !c.archived);
+  const names = list.slice(0, 5).map((c) => `<li>${esc(c.name)} <i>${esc(c.code)} · ${esc(t("pupilsN", c.nStudents))}</i></li>`).join("");
+  return `<div class="tv-tile on"><b>${esc(t("tClasses"))}</b><span>${esc(list.length ? t("classesN", list.length) : t("noClassesYet"))}</span>
+    ${list.length ? `<ul class="tv-mini">${names}${list.length > 5 ? `<li><i>${esc(t("andMore", list.length - 5))}</i></li>` : ""}</ul>` : ""}
+    <div class="row"><a class="btn small" href="#/teacher/classes">${esc(t("openClasses"))}</a></div></div>`;
+}
+function classRow(c) {
+  return `<li><a class="cls-item" href="#/teacher/classes/${esc(c.id)}"><b>${esc(c.name)}</b><span class="cls-code-sm">${esc(c.code)}</span>
+    <span class="tv-date">${esc(t("setsN", c.nSets))} · ${esc(t("pupilsN", c.nStudents))}</span></a></li>`;
+}
+function classesHtml() {
+  const act = state.classes.filter((c) => !c.archived), arch = state.classes.filter((c) => c.archived);
+  return `<section class="card tv-wide"><a class="linkbtn" href="#/teacher">← ${esc(t("title"))}</a>
+    <h1 class="h1" style="margin-top:8px">${esc(t("classesT"))}</h1><p class="help">${esc(t("classesP"))}</p>
+    <form class="row tv-invite" id="newClass" novalidate style="margin:16px 0"><input id="newClassIn" type="text" maxlength="60" placeholder="${esc(t("newClassPh"))}" aria-label="${esc(t("newClassPh"))}"><button class="btn small" type="submit">${esc(t("createClass"))}</button></form>
+    ${act.length ? `<ul class="tv-list">${act.map(classRow).join("")}</ul>` : `<p class="help">${esc(t("noClassesYet"))}</p>`}
+    ${arch.length ? `<details class="cls-arch"><summary>${esc(t("archiveT"))} (${arch.length})</summary><ul class="tv-list">${arch.map(classRow).join("")}</ul></details>` : ""}
+  </section>`;
+}
+function qrSvg(text) {
+  const qr = qrcode(0, "M"); qr.addData(text); qr.make();
+  return qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+}
+function classHtml() {
+  const c = state.cls, r = c.row, link = classLink(r.join_code);
+  const byId = new Map(c.sets.map((x) => [x.id, x]));
+  const confirmRow = (key, q, yesAct, data) => state.confirm === key
+    ? `<span class="tv-confirm">${esc(q)} <button class="btn danger small" type="button" data-act="${yesAct}"${data || ""}>${esc(t("yes"))}</button><button class="btn ghost small" type="button" data-act="cancel">${esc(t("no"))}</button></span>` : "";
+  const chosen = c.chosen.map((sid, i) => {
+    const x = byId.get(sid); if (!x) return "";
+    return `<li><span class="cls-pos">${i + 1}</span><b>${esc(x.title || "—")}</b>${x.grade ? `<span class="tv-date" style="margin-left:0">${esc(x.grade)}</span>` : ""}
+      <span class="cls-ord"><button class="iconbtn" type="button" data-act="up" data-i="${i}" aria-label="${esc(t("up"))}"${i === 0 ? " disabled" : ""}>↑</button><button class="iconbtn" type="button" data-act="down" data-i="${i}" aria-label="${esc(t("down"))}"${i === c.chosen.length - 1 ? " disabled" : ""}>↓</button><button class="iconbtn" type="button" data-act="take" data-i="${i}" aria-label="${esc(t("take"))}">×</button></span></li>`;
+  }).join("");
+  const rest = c.sets.filter((x) => c.chosen.indexOf(x.id) < 0);
+  return `<section class="card tv-wide"><a class="linkbtn" href="#/teacher/classes">${esc(t("allClasses"))}</a>
+      <form class="cls-head" id="clsRename" novalidate><input id="clsName" class="cls-name" type="text" maxlength="60" value="${esc(c.nameDraft != null ? c.nameDraft : r.name)}" aria-label="${esc(t("classesT"))}">
+      ${r.archived ? `<span class="tag">${esc(t("archived"))}</span>` : ""}<button class="btn ghost small" type="submit" id="clsRenameBtn" hidden>${esc(t("rename"))}</button></form>
+      <div class="cls-join">
+        <div class="cls-qr" aria-hidden="true">${qrSvg(link)}</div>
+        <div class="cls-info">
+          <p class="lbl">${esc(t("code"))}</p><p class="cls-code">${esc(r.join_code)}</p>
+          <p class="lbl">${esc(t("studentLink"))}</p><p class="cls-link"><code id="clsLink">${esc(link)}</code></p>
+          <div class="row"><button class="btn small" type="button" data-act="copy">${esc(t("copyLink"))}</button><button class="btn ghost small" type="button" data-act="qrpng">${esc(t("qrPng"))}</button><button class="btn ghost small" type="button" data-act="proj">${esc(t("projector"))}</button>
+          ${state.confirm === "code" ? "" : `<button class="btn ghost small" type="button" data-act="code">${esc(t("newCode"))}</button>`}</div>
+          ${state.confirm === "code" ? `<p class="tv-confirm cls-warn">${esc(t("newCodeQ"))} <button class="btn danger small" type="button" data-act="code-yes">${esc(t("newCode"))}</button><button class="btn ghost small" type="button" data-act="cancel">${esc(t("no"))}</button></p>` : ""}
+          <p class="help">${esc(t("joinHelp"))}</p>
+        </div>
+      </div></section>
+    <section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("classSets"))}</h2><p class="help">${esc(t("classSetsP"))}</p>
+      ${c.chosen.length ? `<ol class="tv-list cls-sets">${chosen}</ol>` : `<p class="help"><b>${esc(t("noClassSets"))}</b></p>`}
+      ${c.sets.length ? (rest.length ? `<p class="lbl" style="margin:14px 0 6px">${esc(t("addSets"))}</p><ul class="cls-add">${rest.map((x) => `<li><button class="chipbtn" type="button" data-act="add" data-id="${esc(x.id)}">+ ${esc(x.title || "—")}${x.grade ? ` · ${esc(x.grade)}` : ""}</button></li>`).join("")}</ul>` : `<p class="help">${esc(t("allAdded"))}</p>`)
+        : `<p class="help">${esc(t("libEmpty"))} <a class="linkbtn" href="#/teacher/sets">${esc(t("toLibrary"))}</a></p>`}
+      <div class="row" style="margin-top:14px"><button class="btn" type="button" data-act="savesets"${c.dirty ? "" : " disabled"}>${esc(t("saveSets"))}</button>${c.dirty ? `<span class="dirty">${esc(t("unsavedSets"))}</span>` : ""}</div></section>
+    <section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("studentsT"))} · ${c.students.length}</h2>
+      ${c.students.length ? `<ul class="tv-list">${c.students.map((st) => `<li><b>${esc(st.display_name)}</b><span class="tv-date">${esc(t("joined"))} ${esc(fmtDate(st.created_at))} · ${esc(t("lastSeen"))} ${esc(fmtDate(st.last_seen))}</span>
+        ${state.confirm === "st:" + st.id ? confirmRow("st:" + st.id, t("removeStudentQ"), "st-yes", ` data-id="${esc(st.id)}"`) : `<button class="btn ghost small" type="button" data-act="st" data-id="${esc(st.id)}">${esc(t("removeStudent"))}</button>`}</li>`).join("")}</ul>`
+        : `<p class="help">${esc(t("noStudents"))}</p>`}</section>
+    <section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("manageT"))}</h2><p class="help">${esc(t("archiveP"))}</p>
+      <div class="row" style="margin-top:10px"><button class="btn ghost small" type="button" data-act="arch">${esc(r.archived ? t("unarchiveBtn") : t("archiveBtn"))}</button>
+      ${state.confirm === "del" ? confirmRow("del", t("deleteClassQ"), "del-yes") : `<button class="btn ghost small cls-danger" type="button" data-act="del">${esc(t("deleteClass"))}</button>`}</div></section>`;
+}
+function projectorHtml() {
+  const r = state.cls.row, link = classLink(r.join_code);
+  return `<div class="projector" role="dialog" aria-modal="true" aria-label="${esc(r.name)}"><button class="btn ghost small proj-close" type="button" data-act="proj-close">${esc(t("close"))}</button>
+    <p class="proj-name">${esc(r.name)}</p><div class="proj-qr">${qrSvg(link)}</div><p class="proj-code">${esc(r.join_code)}</p>
+    <p class="proj-link">${esc(t("scanOr"))} <b>${esc(link.replace(/^https?:\/\//, ""))}</b></p></div>`;
+}
+async function createClass(name) {
+  name = String(name || "").trim(); if (!name) return;
+  for (let i = 0; i < 5; i++) {
+    const { data, error } = await supabase.from("classes").insert({ owner_id: state.teacher.id, name, join_code: randomCode() }).select("id").single();
+    if (!error) { location.hash = "#/teacher/classes/" + data.id; return; }
+    if (String(error.code) !== "23505") break;
+  }
+  state.msg = { kind: "err", text: t("saveErrGen") }; render();
+}
+async function classUpdate(fields, okMsg) {
+  const { error } = await supabase.from("classes").update(fields).eq("id", state.cls.row.id);
+  if (error) { state.msg = { kind: "err", text: t("saveErrGen") }; render(); return false; }
+  Object.assign(state.cls.row, fields);
+  if (okMsg) state.msg = { kind: "ok", text: okMsg };
+  render(); return true;
+}
+async function newCode() {
+  for (let i = 0; i < 5; i++) {
+    const code = randomCode();
+    const { error } = await supabase.from("classes").update({ join_code: code }).eq("id", state.cls.row.id);
+    if (!error) { state.cls.row.join_code = code; state.confirm = null; state.msg = { kind: "ok", text: t("codeChanged") }; render(); return; }
+    if (String(error.code) !== "23505") break;
+  }
+  state.msg = { kind: "err", text: t("saveErrGen") }; render();
+}
+async function saveClassSets() {
+  const c = state.cls, id = c.row.id;
+  let q = supabase.from("class_sets").delete().eq("class_id", id);
+  if (c.chosen.length) q = q.not("set_id", "in", "(" + c.chosen.join(",") + ")");
+  const { error: e1 } = await q;
+  let e2 = null;
+  if (!e1 && c.chosen.length) ({ error: e2 } = await supabase.from("class_sets").upsert(c.chosen.map((sid, i) => ({ class_id: id, set_id: sid, position: i })), { onConflict: "class_id,set_id" }));
+  if (e1 || e2) { state.msg = { kind: "err", text: t("saveErrGen") }; render(); return; }
+  c.dirty = false; state.msg = { kind: "ok", text: t("setsSaved") }; render();
+}
+async function copyLink() {
+  const link = classLink(state.cls.row.join_code);
+  try { await navigator.clipboard.writeText(link); state.msg = { kind: "ok", text: t("linkCopied") }; }
+  catch (e) {
+    const el = root.querySelector("#clsLink");
+    if (el) { const rg = document.createRange(); rg.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(rg); }
+    state.msg = { kind: "err", text: t("copyFail") };
+  }
+  render();
+}
+function downloadQr() {
+  const r = state.cls.row, qr = qrcode(0, "M"); qr.addData(classLink(r.join_code)); qr.make();
+  const n = qr.getModuleCount(), cell = 16, margin = 4, size = (n + margin * 2) * cell, pad = 90;
+  const cv = document.createElement("canvas"); cv.width = size; cv.height = size + pad;
+  const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height); ctx.fillStyle = "#15304A";
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.isDark(y, x)) ctx.fillRect((x + margin) * cell, (y + margin) * cell, cell, cell);
+  ctx.textAlign = "center"; ctx.font = "800 44px Nunito, Arial, sans-serif"; ctx.fillText(r.name + " · " + r.join_code, size / 2, size + 50);
+  cv.toBlob((b) => {
+    const url = URL.createObjectURL(b), a = document.createElement("a");
+    a.href = url; a.download = "Bubble Sort - " + r.name.replace(/[\\/:*?"<>|]+/g, " ") + " - QR.png"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }, "image/png");
+}
+function classAction(a, b) {
+  const c = state.cls; if (!c) return false;
+  const i = +b.dataset.i;
+  if (a === "up" && i > 0) { [c.chosen[i - 1], c.chosen[i]] = [c.chosen[i], c.chosen[i - 1]]; c.dirty = true; render(); }
+  else if (a === "down" && i < c.chosen.length - 1) { [c.chosen[i + 1], c.chosen[i]] = [c.chosen[i], c.chosen[i + 1]]; c.dirty = true; render(); }
+  else if (a === "take") { c.chosen.splice(i, 1); c.dirty = true; render(); }
+  else if (a === "add") { c.chosen.push(b.dataset.id); c.dirty = true; render(); }
+  else if (a === "savesets") saveClassSets();
+  else if (a === "copy") copyLink();
+  else if (a === "qrpng") downloadQr();
+  else if (a === "proj") { state.projector = true; render(); }
+  else if (a === "proj-close") { state.projector = false; render(); }
+  else if (a === "code") { state.confirm = "code"; render(); }
+  else if (a === "code-yes") newCode();
+  else if (a === "cancel") { state.confirm = null; render(); }
+  else if (a === "st") { state.confirm = "st:" + b.dataset.id; render(); }
+  else if (a === "st-yes") {
+    supabase.from("students").delete().eq("id", b.dataset.id).then(({ error }) => {
+      if (error) state.msg = { kind: "err", text: t("saveErrGen") }; else c.students = c.students.filter((s) => s.id !== b.dataset.id);
+      state.confirm = null; render();
+    });
+  }
+  else if (a === "arch") classUpdate({ archived: !c.row.archived });
+  else if (a === "del") { state.confirm = "del"; render(); }
+  else if (a === "del-yes") {
+    supabase.from("classes").delete().eq("id", c.row.id).then(({ error }) => {
+      if (error) { state.msg = { kind: "err", text: t("saveErrGen") }; render(); return; }
+      state.msg = { kind: "ok", text: t("classDeleted") }; state.keepMsg = true; state.cls = null; location.hash = "#/teacher/classes";
+    });
+  }
+  else return false;
+  return true;
+}
+
 function wire() {
   const q = (s) => root.querySelector(s);
   const login = q("#tvLogin");
   if (login) { login.onsubmit = (e) => { e.preventDefault(); sendLink(q("#tvEmail").value); }; if (!state.busy) q("#tvEmail").focus(); }
   const code = q("#tvCode");
   if (code) code.onsubmit = (e) => { e.preventDefault(); verifyCode(q("#tvCodeIn").value); };
+  const nc = q("#newClass");
+  if (nc) nc.onsubmit = (e) => { e.preventDefault(); createClass(q("#newClassIn").value); };
+  const rn = q("#clsRename");
+  if (rn) {
+    const inp = q("#clsName"), btn = q("#clsRenameBtn");
+    const sync = () => { btn.hidden = inp.value.trim() === state.cls.row.name || !inp.value.trim(); };
+    sync();
+    inp.oninput = () => { state.cls.nameDraft = inp.value; sync(); };
+    rn.onsubmit = async (e) => { e.preventDefault(); const v = inp.value.trim(); if (!v || v === state.cls.row.name) return; if (await classUpdate({ name: v }, t("renamed"))) state.cls.nameDraft = null; };
+  }
   const inv = q("#tvInvite");
   if (inv) inv.onsubmit = (e) => { e.preventDefault(); addInvite(q("#tvInviteIn").value); };
   root.querySelectorAll("[data-act]").forEach((b) => {
     b.onclick = () => {
       const a = b.dataset.act;
+      if (classAction(a, b)) return;
       if (a === "signout") signOut();
       else if (a === "again") { state.view = "login"; state.msg = null; render(); }
       else if (a === "rm") { state.confirmInvite = b.dataset.email; render(); }
@@ -321,5 +606,7 @@ function wire() {
     };
   });
 }
+
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && state.projector) { state.projector = false; render(); } });
 
 export function rerenderTeacher() { if (root && !root.hidden) render(); }
