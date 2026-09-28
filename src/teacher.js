@@ -32,6 +32,15 @@ const T = {
     deleteClass: "Удалить класс", deleteClassQ: "Удалить класс вместе со всеми учениками и их прогрессом? Отменить нельзя.",
     classDeleted: "Класс удалён.", notFound: "Класс не найден.", saveErrGen: "Не удалось сохранить. Проверьте интернет и попробуйте снова.",
     close: "Закрыть", scanOr: "Отсканируйте QR-код или откройте",
+    statsT: "Статистика класса", statsEmpty: "Статистика появится, когда ученики начнут проходить уровни.",
+    sPupils: "учеников", sActive: "играли за 7 дней", sLevels: "уровней пройдено", sPlays: "игр сыграно",
+    kGroups: "Группы", kOdd: "Найди лишнее", kPairs: "Слово ↔ перевод",
+    gridT: "Пройдено уровней по наборам", gridP: "Число — сколько уровней пройдено; кружки — лучший результат (из 3) на последнем пройденном уровне. Нажмите на имя, чтобы увидеть подробности.",
+    gridNone: "—", cellT: (n, set, lv, st) => `${n} · ${set}: пройдено уровней — ${lv}${st ? `, пузырей на последнем — ${st} из 3` : ""}`,
+    lastSeenCol: "Заходил(а)", confT: "Слова, которые путают чаще всего", confP: "Сколько раз слово участвовало в ошибке и у скольких учеников. Эти слова игра сама чаще подкладывает в уровни.",
+    confNone: "Пока без ошибок — или ученики ещё не играли.", timesPupils: (n, m) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? "раз" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "раза" : "раз"} · ${m} уч.`,
+    detailSets: "По наборам", detailMiss: "Путает", noMiss: "ошибок нет", lvShort: (n) => `ур. ${n}`,
+    tStatsOn: "Статистика — на странице каждого класса: уровни учеников по наборам и слова, которые путают.",
     back: "← К игре", title: "Кабинет учителя", signout: "Выйти",
     loginT: "Вход для учителей", loginP: "Введите рабочую почту — пришлём ссылку для входа. Пароль не нужен.",
     email: "Почта", send: "Прислать ссылку", sending: "Отправляю…",
@@ -82,6 +91,15 @@ const T = {
     deleteClass: "Delete class", deleteClassQ: "Delete the class with all its pupils and their progress? This can't be undone.",
     classDeleted: "Class deleted.", notFound: "Class not found.", saveErrGen: "Couldn't save. Check your connection and try again.",
     close: "Close", scanOr: "Scan the QR code or open",
+    statsT: "Class statistics", statsEmpty: "Statistics appear once pupils start finishing levels.",
+    sPupils: "pupils", sActive: "played in last 7 days", sLevels: "levels completed", sPlays: "games played",
+    kGroups: "Groups", kOdd: "Odd one out", kPairs: "Word ↔ translation",
+    gridT: "Levels completed per set", gridP: "The number is levels completed; dots show the best result (of 3) on the latest completed level. Click a name for details.",
+    gridNone: "—", cellT: (n, set, lv, st) => `${n} · ${set}: ${lv} level(s) completed${st ? `, ${st} of 3 bubbles on the latest` : ""}`,
+    lastSeenCol: "Last seen", confT: "Most mixed-up words", confP: "How many times a word was part of a mistake, and for how many pupils. The game already brings these words back more often.",
+    confNone: "No mistakes yet — or nobody has played.", timesPupils: (n, m) => `${n}× · ${m} pupil${m === 1 ? "" : "s"}`,
+    detailSets: "By set", detailMiss: "Mixes up", noMiss: "no mistakes", lvShort: (n) => `lvl ${n}`,
+    tStatsOn: "Statistics live on each class page: pupils' levels per set and the words they mix up.",
     back: "← Back to the game", title: "Teacher area", signout: "Sign out",
     loginT: "Teacher sign-in", loginP: "Enter your work e-mail and we'll send you a sign-in link. No password needed.",
     email: "E-mail", send: "Send link", sending: "Sending…",
@@ -132,6 +150,15 @@ const T = {
     deleteClass: "Sınıfı sil", deleteClassQ: "Sınıf tüm öğrencileri ve ilerlemeleriyle birlikte silinsin mi? Geri alınamaz.",
     classDeleted: "Sınıf silindi.", notFound: "Sınıf bulunamadı.", saveErrGen: "Kaydedilemedi. Bağlantınızı kontrol edip tekrar deneyin.",
     close: "Kapat", scanOr: "QR kodu okutun veya açın:",
+    statsT: "Sınıf istatistiği", statsEmpty: "Öğrenciler seviye bitirmeye başlayınca istatistik görünür.",
+    sPupils: "öğrenci", sActive: "son 7 günde oynadı", sLevels: "seviye tamamlandı", sPlays: "oyun oynandı",
+    kGroups: "Gruplar", kOdd: "Farklı olanı bul", kPairs: "Kelime ↔ çeviri",
+    gridT: "Setlere göre tamamlanan seviyeler", gridP: "Sayı tamamlanan seviye sayısıdır; noktalar son tamamlanan seviyedeki en iyi sonucu (3 üzerinden) gösterir. Ayrıntı için ada tıklayın.",
+    gridNone: "—", cellT: (n, set, lv, st) => `${n} · ${set}: ${lv} seviye tamamlandı${st ? `, sonuncuda 3 baloncuktan ${st}` : ""}`,
+    lastSeenCol: "Son giriş", confT: "En çok karıştırılan kelimeler", confP: "Bir kelimenin kaç kez hataya karıştığı ve kaç öğrencide. Oyun bu kelimeleri zaten daha sık getiriyor.",
+    confNone: "Henüz hata yok — ya da kimse oynamadı.", timesPupils: (n, m) => `${n} kez · ${m} öğrenci`,
+    detailSets: "Setlere göre", detailMiss: "Karıştırdıkları", noMiss: "hata yok", lvShort: (n) => `sv. ${n}`,
+    tStatsOn: "İstatistik her sınıfın sayfasında: öğrencilerin setlere göre seviyeleri ve karıştırdıkları kelimeler.",
     back: "← Oyuna dön", title: "Öğretmen alanı", signout: "Çıkış",
     loginT: "Öğretmen girişi", loginP: "İş e-postanızı yazın, size giriş bağlantısı gönderelim. Şifre gerekmez.",
     email: "E-posta", send: "Bağlantı gönder", sending: "Gönderiliyor…",
@@ -316,7 +343,7 @@ function homeHtml() {
   const me = state.teacher || {};
   const tile = (title, p, n) => `<div class="tv-tile" aria-disabled="true"><b>${esc(title)}</b><span>${esc(p)}</span><em>${esc(t("soon", n))}</em></div>`;
   let html = `<section class="card tv-wide"><p class="kicker">${esc(t("hello", me.email || ""))}${me.is_admin ? ` · ${esc(t("admin"))}` : ""}</p>
-    <h1 class="h1">${esc(t("tilesT"))}</h1><div class="tv-tiles">${setsTile()}${classesTile()}${tile(t("tStats"), t("tStatsP"), 6)}</div></section>`;
+    <h1 class="h1">${esc(t("tilesT"))}</h1><div class="tv-tiles">${setsTile()}${classesTile()}<div class="tv-tile on"><b>${esc(t("tStats"))}</b><span>${esc(t("tStatsOn"))}</span><div class="row"><a class="btn ghost small" href="#/teacher/classes">${esc(t("openClasses"))}</a></div></div></div></section>`;
   if (me.is_admin) {
     const a = state.admin;
     html += `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("teachersT"))}</h2><ul class="tv-list">` +
@@ -404,16 +431,78 @@ async function loadClasses() {
   return (data || []).map((c) => ({ id: c.id, name: c.name, code: c.join_code, archived: c.archived, created_at: c.created_at, nSets: cnt(c.class_sets), nStudents: cnt(c.students) }));
 }
 async function loadClassDetail(id) {
-  const [cq, csq, stq, sets] = await Promise.all([
+  const [cq, csq, stq, sets, pq] = await Promise.all([
     supabase.from("classes").select("*").eq("id", id).maybeSingle(),
     supabase.from("class_sets").select("set_id,position").eq("class_id", id).order("position"),
     supabase.from("students").select("id,display_name,created_at,last_seen").eq("class_id", id).order("display_name"),
-    loadMySets()
+    loadMySets(),
+    supabase.from("progress").select("student_id,set_id,kind,level,stars,misses,plays,updated_at, students!inner(class_id)").eq("students.class_id", id)
   ]);
   if (cq.error) throw cq.error;
   if (!cq.data) { state.cls = null; return; }
   const own = new Set(sets.map((x) => x.id));
-  state.cls = { row: cq.data, sets, chosen: (csq.data || []).map((r) => r.set_id).filter((sid) => own.has(sid)), students: stq.data || [], dirty: false, nameDraft: null };
+  state.cls = { row: cq.data, sets, chosen: (csq.data || []).map((r) => r.set_id).filter((sid) => own.has(sid)), students: stq.data || [], dirty: false, nameDraft: null,
+    progress: (pq.data || []).map((r) => ({ student: r.student_id, set: r.set_id, kind: r.kind, level: r.level, stars: r.stars || {}, misses: r.misses || {}, plays: r.plays || 0, at: r.updated_at })),
+    statKind: (state.cls && state.cls.row && state.cls.row.id === id && state.cls.statKind) || "groups", openStudent: null };
+}
+
+/* ── class statistics ── */
+function statsHtml() {
+  const c = state.cls, P = c.progress, byId = new Map(c.sets.map((x) => [x.id, x]));
+  const sets = c.chosen.map((sid) => byId.get(sid)).filter(Boolean);
+  const week = Date.now() - 7 * 864e5;
+  const active = c.students.filter((st) => new Date(st.last_seen).getTime() >= week).length;
+  const levels = P.reduce((n, r) => n + Math.max(0, r.level - 1), 0), plays = P.reduce((n, r) => n + r.plays, 0);
+  const stat = (v, l) => `<div class="st-tile"><b>${v}</b><span>${esc(l)}</span></div>`;
+  let html = `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("statsT"))}</h2>
+    <div class="st-tiles">${stat(c.students.length, t("sPupils"))}${stat(active, t("sActive"))}${stat(levels, t("sLevels"))}${stat(plays, t("sPlays"))}</div>`;
+  if (!P.length || !sets.length) return html + `<p class="help" style="margin-top:12px">${esc(t("statsEmpty"))}</p></section>`;
+
+  // grid: pupils × sets for the chosen game kind
+  const kinds = [["groups", t("kGroups")], ["odd", t("kOdd")], ["pairs", t("kPairs")]];
+  const k = c.statKind, cell = new Map(P.filter((r) => r.kind === k).map((r) => [r.student + "|" + r.set, r]));
+  const maxLv = Math.max(1, ...[...cell.values()].map((r) => r.level - 1));
+  const lastStars = (r) => { const keys = Object.keys(r.stars).map(Number).filter((n) => n <= r.level - 1); return keys.length ? r.stars[Math.max(...keys)] : 0; };
+  html += `<h3 class="h2">${esc(t("gridT"))}</h3><div class="seg" role="group">${kinds.map(([v, l]) => `<button type="button" class="segbtn" data-act="skind" data-kind="${v}" aria-pressed="${k === v}">${esc(l)}</button>`).join("")}</div>
+    <p class="help" style="margin:8px 0 10px">${esc(t("gridP"))}</p><div class="st-scroll"><table class="st-grid"><thead><tr><th scope="col"></th>${sets.map((x) => `<th scope="col">${esc(x.title)}</th>`).join("")}<th scope="col">${esc(t("lastSeenCol"))}</th></tr></thead><tbody>`;
+  c.students.forEach((st) => {
+    html += `<tr><th scope="row"><button class="linkbtn" type="button" data-act="sopen" data-id="${esc(st.id)}" aria-expanded="${c.openStudent === st.id}">${esc(st.display_name)}</button></th>` +
+      sets.map((x) => {
+        const r = cell.get(st.id + "|" + x.id);
+        if (!r || r.level <= 1) return `<td class="st-cell none" title="${esc(t("cellT", st.display_name, x.title, 0, 0))}">${esc(t("gridNone"))}</td>`;
+        const lv = r.level - 1, sc = lastStars(r), a = Math.round(18 + 62 * Math.min(1, lv / maxLv));
+        return `<td class="st-cell" style="--a:${a}%" title="${esc(t("cellT", st.display_name, x.title, lv, sc))}"><b>${lv}</b><span class="st-dots">${[1, 2, 3].map((i) => `<i class="${i <= sc ? "on" : ""}"></i>`).join("")}</span></td>`;
+      }).join("") + `<td class="st-seen">${esc(fmtDate(st.last_seen))}</td></tr>`;
+    if (c.openStudent === st.id) html += `<tr class="st-detail"><td colspan="${sets.length + 2}">${studentDetail(st, sets)}</td></tr>`;
+  });
+  html += `</tbody></table></div>`;
+
+  // most confused words (latest misses per pupil per set, all kinds merged)
+  const latest = new Map();
+  P.forEach((r) => { const key = r.student + "|" + r.set, prev = latest.get(key); if (!prev || prev.at < r.at) latest.set(key, r); });
+  const words = new Map();
+  latest.forEach((r) => Object.entries(r.misses).forEach(([w, n]) => {
+    if (!(n > 0)) return; const e = words.get(w) || { n: 0, pupils: new Set(), set: r.set }; e.n += n; e.pupils.add(r.student); words.set(w, e);
+  }));
+  const groupOf = (setId, w) => { const x = byId.get(setId); if (!x) return ""; const g = (x.cats || []).find((c2) => (c2.words || []).some((y) => String(y.w).toLowerCase() === w)); return g ? g.name : ""; };
+  const top = [...words.entries()].sort((a, b) => b[1].n - a[1].n || b[1].pupils.size - a[1].pupils.size).slice(0, 12);
+  const maxN = top.length ? top[0][1].n : 1;
+  html += `<h3 class="h2">${esc(t("confT"))}</h3><p class="help" style="margin-bottom:10px">${esc(t("confP"))}</p>` + (top.length
+    ? `<ol class="st-bars">${top.map(([w, e]) => `<li><span class="st-word"><b>${esc(w)}</b><i>${esc(groupOf(e.set, w))}</i></span><span class="st-bar"><span style="width:${Math.max(4, Math.round(100 * e.n / maxN))}%"></span></span><span class="st-num">${esc(t("timesPupils", e.n, e.pupils.size))}</span></li>`).join("")}</ol>`
+    : `<p class="help">${esc(t("confNone"))}</p>`);
+  return html + `</section>`;
+}
+function studentDetail(st, sets) {
+  const rows = state.cls.progress.filter((r) => r.student === st.id);
+  const kindName = { groups: t("kGroups"), odd: t("kOdd"), pairs: t("kPairs") };
+  const per = sets.map((x) => {
+    const rs = rows.filter((r) => r.set === x.id && r.level > 1);
+    return rs.length ? `<li><b>${esc(x.title)}</b> ${rs.map((r) => `<span class="tag">${esc(kindName[r.kind] || r.kind)} · ${esc(t("lvShort", r.level - 1))}</span>`).join(" ")}</li>` : "";
+  }).join("");
+  const miss = {}; rows.forEach((r) => Object.entries(r.misses).forEach(([w, n]) => { miss[w] = Math.max(miss[w] || 0, n); }));
+  const mw = Object.entries(miss).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([w]) => w);
+  return `<div class="st-det"><div><p class="lbl">${esc(t("detailSets"))}</p><ul class="tv-mini">${per || `<li><i>${esc(t("gridNone"))}</i></li>`}</ul></div>
+    <div><p class="lbl">${esc(t("detailMiss"))}</p><p class="st-miss">${mw.length ? mw.map(esc).join(", ") : `<i>${esc(t("noMiss"))}</i>`}</p></div></div>`;
 }
 function classesTile() {
   const list = state.classes.filter((c) => !c.archived);
@@ -464,6 +553,7 @@ function classHtml() {
           <p class="help">${esc(t("joinHelp"))}</p>
         </div>
       </div></section>
+    ${statsHtml()}
     <section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("classSets"))}</h2><p class="help">${esc(t("classSetsP"))}</p>
       ${c.chosen.length ? `<ol class="tv-list cls-sets">${chosen}</ol>` : `<p class="help"><b>${esc(t("noClassSets"))}</b></p>`}
       ${c.sets.length ? (rest.length ? `<p class="lbl" style="margin:14px 0 6px">${esc(t("addSets"))}</p><ul class="cls-add">${rest.map((x) => `<li><button class="chipbtn" type="button" data-act="add" data-id="${esc(x.id)}">+ ${esc(x.title || "—")}${x.grade ? ` · ${esc(x.grade)}` : ""}</button></li>`).join("")}</ul>` : `<p class="help">${esc(t("allAdded"))}</p>`)
@@ -544,7 +634,9 @@ function downloadQr() {
 function classAction(a, b) {
   const c = state.cls; if (!c) return false;
   const i = +b.dataset.i;
-  if (a === "up" && i > 0) { [c.chosen[i - 1], c.chosen[i]] = [c.chosen[i], c.chosen[i - 1]]; c.dirty = true; render(); }
+  if (a === "skind") { c.statKind = b.dataset.kind; render(); }
+  else if (a === "sopen") { c.openStudent = c.openStudent === b.dataset.id ? null : b.dataset.id; render(); }
+  else if (a === "up" && i > 0) { [c.chosen[i - 1], c.chosen[i]] = [c.chosen[i], c.chosen[i - 1]]; c.dirty = true; render(); }
   else if (a === "down" && i < c.chosen.length - 1) { [c.chosen[i + 1], c.chosen[i]] = [c.chosen[i], c.chosen[i + 1]]; c.dirty = true; render(); }
   else if (a === "take") { c.chosen.splice(i, 1); c.dirty = true; render(); }
   else if (a === "add") { c.chosen.push(b.dataset.id); c.dirty = true; render(); }
