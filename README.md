@@ -16,7 +16,7 @@ Interface languages: Russian, English, Turkish.
 2. ✅ Database schema (`supabase/schema.sql`, setup guide in `supabase/SETUP.md`), teacher sign-in by e-mail link, invitations.
 3. ✅ Teacher word-set library in the database (`#/teacher/sets`): cards, text, CSV/Excel import, printable worksheets, example sets.
 4. ✅ Classes (`#/teacher/classes`): word sets per class with order, join code, pupil link, QR code (PNG), projector view, archive.
-5. Pupil access by class code, progress saved on the server.
+5. ✅ Pupils join with the class link/code and a first name (`#/c/CODE`), play only their class's sets; progress and mixed-up words saved on the server (per pupil, safe on shared tablets).
 6. Class statistics.
 7. Launch.
 

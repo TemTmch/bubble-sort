@@ -22,6 +22,9 @@ function route() {
   teacherEl.hidden = !teacher;
   document.title = teacher || workshop ? "Bubble Sort · Teacher" : "Bubble Sort";
   if (!workshop) game.closeWorkshop();
+  const cls = !teacher && !workshop && h.match(/^#\/c\/([A-Za-z0-9-]+)/);
+  if (cls) import("./student.js").then((m) => m.openClass(game, cls[1]));
+  else if (!teacher && !workshop && game.inClass()) game.leaveClass();
   if (teacher) import("./teacher.js").then((m) => m.showTeacher(teacherEl));
   if (workshop) import("./teacher.js").then((m) => m.openSetsWorkshop(game));
 }

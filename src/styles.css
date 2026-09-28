@@ -358,3 +358,17 @@ button{cursor:pointer}
 .proj-code{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(40px,9vw,96px);letter-spacing:.14em;line-height:1}
 .proj-link{margin:0;font-size:clamp(14px,2vw,22px);color:#4E6577}
 @media (max-width:620px){.cls-join{grid-template-columns:1fr}.cls-qr{max-width:220px}}
+
+/* ── pupil join / class home ── */
+.classbox{display:grid;gap:12px;margin:4px 0 18px;padding:14px 16px;border-radius:18px;background:var(--accent-soft)}
+.classbox .btn{justify-self:start;text-decoration:none}
+.code-form{display:grid;gap:6px}.code-form .lbl{margin:0}
+.code-form input,.join-form input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:11px 14px;font-weight:800;font-size:18px}
+.code-form input{text-transform:uppercase;letter-spacing:.14em;font-family:var(--display);max-width:220px}
+.code-form .row{flex-wrap:nowrap}
+.join{max-width:520px}
+.join-form{display:grid;gap:10px;margin-top:6px}.join-form .lbl{margin:0;text-transform:none;letter-spacing:0;font-size:15px;color:var(--ink-soft);font-weight:600}
+.join-form .btn{justify-self:start}
+.join-err{margin:10px 0 0;color:var(--bad);font-weight:700}
+.rules-d{margin-top:16px}.rules-d summary{cursor:pointer;font-weight:800;color:var(--ink-soft);margin-bottom:8px}
+.class-links{display:flex;gap:18px;flex-wrap:wrap}

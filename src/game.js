@@ -20,8 +20,11 @@ var LANGS = [["en-GB", "English (UK)"], ["en-US", "English (US)"], ["ru-RU", "Р
 function $(s, r) { return (r || document).querySelector(s); }
 function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+// In a class, progress keys are namespaced per pupil so pupils sharing a tablet don't mix results.
+var LS_NS = "";
+function nsKey(k) { return LS_NS && /^bs\.(lv|stars|miss|mode|kind)\./.test(k) ? k.replace(/^bs\./, "bs." + LS_NS + ".") : k; }
+function lsGet(k) { try { return localStorage.getItem(nsKey(k)); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(nsKey(k), v); } catch (e) {} }
 function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
 function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
 function ssDel(k) { try { sessionStorage.removeItem(k); } catch (e) {} }
@@ -35,6 +38,9 @@ try { reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches; } c
 
 var DATA = JSON.parse(JSON.stringify(demoData));
 var SETS = Array.isArray(DATA.sets) ? DATA.sets : [];
+var DEMO_SETS = SETS;
+var CLASS = null; // {code, className, student, onProgress(setId, kind, data), onForget()} while a pupil plays in a class
+var JOIN = null;  // join screen state for #/c/CODE
 
 /* ─────────────── i18n ─────────────── */
 function plural(n, one, few, many) { var m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return one; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few; return many; }
@@ -323,6 +329,30 @@ Object.assign(I18N.tr, {
   printCards: "Sınıflandırma kartları", printSheet: "Çalışma kâğıdı",
   printHelp: "Bir HTML dosyası iner. Tarayıcıda açıp Yazdır'a (Ctrl+P) basın — yazıcıya ya da «PDF olarak kaydet». Cevaplar çalışma kâğıdının son sayfasında."
 });
+Object.assign(I18N.ru, { haveCode: "Есть код класса?", codePh: "Например K7QX4M", go: "Войти",
+  continueAs: function (c, n) { return "Продолжить: " + c + " · " + n; }, demoSets: "Примеры наборов", classK: "Класс",
+  joinAsk: "Как тебя зовут? Напиши имя — так учитель увидит твои успехи.", namePh: "Имя", joinBtn: "Войти в класс",
+  notFoundT: "Класс не найден", notFoundP: "Проверь код или спроси у учителя новый. Возможно, класс закрыт.",
+  netErrT: "Нет связи", netErr: "Не получилось связаться с сервером. Проверь интернет и попробуй снова.",
+  toMain: "← На главную", hiName: function (n) { return "Привет, " + n + "! Выбери набор"; }, notMe: "Это не я",
+  leaveClass: "Выйти из класса", noClassSets: "Учитель ещё не добавил наборы в этот класс.", badName: "Напиши имя — до 40 букв.",
+  loadingK: "Загружаю…", howToPlay: "Как играть" });
+Object.assign(I18N.en, { haveCode: "Got a class code?", codePh: "e.g. K7QX4M", go: "Join",
+  continueAs: function (c, n) { return "Continue: " + c + " · " + n; }, demoSets: "Example sets", classK: "Class",
+  joinAsk: "What's your name? Type it so your teacher can see how you're doing.", namePh: "First name", joinBtn: "Join the class",
+  notFoundT: "Class not found", notFoundP: "Check the code or ask your teacher for a new one. The class may be closed.",
+  netErrT: "No connection", netErr: "Couldn't reach the server. Check the internet and try again.",
+  toMain: "← Home", hiName: function (n) { return "Hi, " + n + "! Pick a word set"; }, notMe: "That's not me",
+  leaveClass: "Leave class", noClassSets: "Your teacher hasn't added word sets to this class yet.", badName: "Type your name — up to 40 letters.",
+  loadingK: "Loading…", howToPlay: "How to play" });
+Object.assign(I18N.tr, { haveCode: "Sınıf kodun var mı?", codePh: "ör. K7QX4M", go: "Katıl",
+  continueAs: function (c, n) { return "Devam et: " + c + " · " + n; }, demoSets: "Örnek setler", classK: "Sınıf",
+  joinAsk: "Adın ne? Yaz ki öğretmenin ilerlemeni görebilsin.", namePh: "Adın", joinBtn: "Sınıfa katıl",
+  notFoundT: "Sınıf bulunamadı", notFoundP: "Kodu kontrol et ya da öğretmeninden yenisini iste. Sınıf kapanmış olabilir.",
+  netErrT: "Bağlantı yok", netErr: "Sunucuya ulaşılamadı. İnterneti kontrol edip tekrar dene.",
+  toMain: "← Ana sayfa", hiName: function (n) { return "Merhaba " + n + "! Bir set seç"; }, notMe: "Bu ben değilim",
+  leaveClass: "Sınıftan çık", noClassSets: "Öğretmenin bu sınıfa henüz set eklemedi.", badName: "Adını yaz — en fazla 40 harf.",
+  loadingK: "Yükleniyor…", howToPlay: "Nasıl oynanır" });
 I18N.ru.saveDb = "Сохранить"; I18N.en.saveDb = "Save"; I18N.tr.saveDb = "Kaydet";
 I18N.ru.savedDb = "Сохранено в вашей библиотеке."; I18N.en.savedDb = "Saved to your library."; I18N.tr.savedDb = "Kitaplığınıza kaydedildi.";
 I18N.ru.saveDbErr = "Не удалось сохранить. Проверьте интернет и попробуйте снова."; I18N.en.saveDbErr = "Couldn't save. Check your connection and try again."; I18N.tr.saveDbErr = "Kaydedilemedi. Bağlantınızı kontrol edip tekrar deneyin.";
@@ -1199,9 +1229,15 @@ function onBoardKey(e) {
   if (low === "m" || low === "ь") { e.preventDefault(); useMagnet(); return; }
 }
 
+function syncProgress() {
+  if (!CLASS || !G || G.draft || !CLASS.onProgress) return;
+  var set = G.set, kind = G.kind || "groups";
+  try { CLASS.onProgress(set.id, kind, { level: savedLevel(set, kind), stars: starsOf(set, kind), misses: missOf(set) }); } catch (e) {}
+}
 function finish(won) {
   if (!G || G.finished) return;
   G.finished = true;
+  setTimeout(syncProgress, 0);
   $("#note").hidden = true;
   var res = $("#result"), html = '<div class="card">';
   var left = G.timed ? Math.ceil(G.time) : G.moves;
@@ -1239,15 +1275,61 @@ function finish(won) {
 }
 
 /* ─────────────── home screen & level map ─────────────── */
+function renderJoin() {
+  var h = $("#home"), j = JOIN, html = '<div class="card join">';
+  if (j.state === "loading") html += '<div class="thinking" aria-label="' + esc(t("loadingK")) + '"><i></i><i></i><i></i></div>';
+  else if (j.state === "name") {
+    html += '<p class="kicker">' + esc(t("classK")) + '</p><h1 class="h1">' + esc(j.className) + "</h1>" +
+      '<form id="joinForm" class="join-form" novalidate><label class="lbl" for="joinName">' + esc(t("joinAsk")) + "</label>" +
+      '<input id="joinName" type="text" maxlength="40" autocomplete="off" autocapitalize="words" placeholder="' + esc(t("namePh")) + '">' +
+      '<button class="btn" type="submit"' + (j.busy ? " disabled" : "") + ">" + esc(t("joinBtn")) + "</button></form>";
+  } else {
+    html += '<p class="kicker">' + esc(t("classK")) + " " + esc(j.code || "") + '</p><h1 class="h1">' + esc(j.state === "neterr" ? t("netErrT") : t("notFoundT")) + "</h1>" +
+      '<p class="help">' + esc(j.state === "neterr" ? t("netErr") : t("notFoundP")) + "</p>" +
+      (j.state === "neterr" ? '<div class="row"><button class="btn" type="button" id="joinRetry">' + esc(t("retry")) + "</button></div>" : codeFormHtml());
+  }
+  var errText = j.error || (j.errorKey ? t(j.errorKey) : "");
+  if (errText) html += '<p class="join-err" role="alert">' + esc(errText) + "</p>";
+  html += '<p class="teacher-entry"><a class="linkbtn" href="#/">' + esc(t("toMain")) + "</a></p></div>";
+  h.innerHTML = html;
+  var f = $("#joinForm");
+  if (f) {
+    var inp = $("#joinName"); if (!j.busy) setTimeout(function () { inp.focus(); }, 30);
+    f.onsubmit = function (e) {
+      e.preventDefault(); var v = inp.value.trim();
+      if (!v || v.length > 40) { JOIN.error = t("badName"); renderJoin(); return; }
+      JOIN.busy = true; JOIN.error = null; renderJoin(); j.onJoin(v);
+    };
+  }
+  if ($("#joinRetry")) $("#joinRetry").onclick = function () { j.onRetry && j.onRetry(); };
+  wireCodeForm();
+}
+function codeFormHtml() {
+  return '<form id="codeForm" class="code-form" novalidate><label class="lbl" for="codeIn">' + esc(t("haveCode")) + '</label><div class="row">' +
+    '<input id="codeIn" type="text" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="' + esc(t("codePh")) + '">' +
+    '<button class="btn" type="submit">' + esc(t("go")) + "</button></div></form>";
+}
+function wireCodeForm() {
+  var cf = $("#codeForm"); if (!cf) return;
+  cf.onsubmit = function (e) {
+    e.preventDefault(); var v = $("#codeIn").value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (v.length >= 4) location.hash = "#/c/" + v;
+  };
+}
 function renderHome() {
+  if (JOIN) return renderJoin();
+  if (CLASS) return renderClassHome();
   var h = $("#home");
   var cards = SETS.filter(function (s) { return playableCats(s).length >= 3; }).map(function (s) {
     var cats = playableCats(s), lv = savedLevel(s);
     return '<button class="setcard" type="button" data-set="' + esc(s.id) + '"><b>' + esc(s.title || t("untitled")) + '</b><span class="meta">' +
       (s.grade ? esc(s.grade) + " · " : "") + esc(t("setMeta", cats.length, wordCount({ cats: cats }))) + '</span><span class="go">' + esc(t("goLevel", lv)) + "</span></button>";
   }).join("");
-  h.innerHTML = '<div class="card"><p class="kicker">' + esc(t("kicker")) + '</p><h1 class="h1">' + esc(t("homeTitle")) + '</h1><ul class="rules">' +
-    t("rules").map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + '</ul><h2 class="h2">' + esc(t("chooseSet")) + "</h2>" +
+  var last = null; try { last = JSON.parse(lsGet("bs.lastClass") || "null"); } catch (e) {}
+  h.innerHTML = '<div class="card"><p class="kicker">' + esc(t("kicker")) + '</p><h1 class="h1">' + esc(t("homeTitle")) + '</h1>' +
+    (STANDALONE ? '<div class="classbox">' + (last && last.code ? '<a class="btn" href="#/c/' + esc(last.code) + '">' + esc(t("continueAs", last.className, last.student)) + "</a>" : "") + codeFormHtml() + "</div>" : "") +
+    '<ul class="rules">' +
+    t("rules").map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + '</ul><h2 class="h2">' + esc(STANDALONE ? t("demoSets") : t("chooseSet")) + "</h2>" +
     (cards ? '<div class="sets">' + cards + "</div>" : '<p class="empty">' + esc(t("noSets")) + "</p>") +
     '<p class="kbdhelp">' + t("kbdHelp") + "</p>" +
     (STANDALONE && !TEACHER_UI ? '<p class="teacher-entry"><a class="linkbtn" href="#/teacher">' + esc(t("teacherLogin")) + "</a></p>" : "") +
@@ -1256,6 +1338,35 @@ function renderHome() {
     btn.onclick = function () { var s = SETS.find(function (x) { return x.id === btn.dataset.set; }); if (s) openLevels(s); };
   });
   if ($("#teacherEntry")) $("#teacherEntry").onclick = openTeacher;
+  wireCodeForm();
+}
+function renderClassHome() {
+  var h = $("#home");
+  var cards = SETS.filter(function (s) { return playableCats(s).length >= 3; }).map(function (s) {
+    var cats = playableCats(s), lv = savedLevel(s);
+    return '<button class="setcard" type="button" data-set="' + esc(s.id) + '"><b>' + esc(s.title || t("untitled")) + '</b><span class="meta">' +
+      (s.grade ? esc(s.grade) + " · " : "") + esc(t("setMeta", cats.length, wordCount({ cats: cats }))) + '</span><span class="go">' + esc(t("goLevel", lv)) + "</span></button>";
+  }).join("");
+  h.innerHTML = '<div class="card"><p class="kicker">' + esc(t("classK")) + " · " + esc(CLASS.className) + '</p><h1 class="h1">' + esc(t("hiName", CLASS.student)) + "</h1>" +
+    (cards ? '<div class="sets">' + cards + "</div>" : '<p class="empty">' + esc(t("noClassSets")) + "</p>") +
+    '<details class="rules-d"><summary>' + esc(t("howToPlay")) + '</summary><ul class="rules">' + t("rules").map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul></details>" +
+    '<p class="teacher-entry class-links"><button class="linkbtn" type="button" id="notMe">' + esc(t("notMe")) + '</button><a class="linkbtn" href="#/">' + esc(t("leaveClass")) + "</a></p></div>";
+  $$(".setcard", h).forEach(function (btn) {
+    btn.onclick = function () { var s = SETS.find(function (x) { return x.id === btn.dataset.set; }); if (s) openLevels(s); };
+  });
+  $("#notMe").onclick = function () { if (CLASS && CLASS.onForget) CLASS.onForget(); };
+}
+function primeProgress(list) {
+  (list || []).forEach(function (p) {
+    var set = { id: p.set }, kind = p.kind;
+    if ((p.level || 1) > savedLevel(set, kind)) lsSet(levelKey(set, kind), String(p.level));
+    var st = starsOf(set, kind), changed = false;
+    Object.keys(p.stars || {}).forEach(function (L) { if (!(st[L] >= p.stars[L])) { st[L] = p.stars[L]; changed = true; } });
+    if (changed) lsSet("bs.stars." + p.set + kindSuffix(kind), JSON.stringify(st));
+    var m = missOf(set), mc = false;
+    Object.keys(p.misses || {}).forEach(function (w) { if (!(m[w] >= p.misses[w])) { m[w] = p.misses[w]; mc = true; } });
+    if (mc) saveMiss(set, m);
+  });
 }
 var levelsSet = null;
 function openLevels(set) {
@@ -2231,6 +2342,27 @@ API.openWorkshop = function (opts) {
   goHome();
   openTeacher();
 };
+API.showJoin = function (opts) {
+  if (CLASS) API.leaveClass(true);
+  var onHome = !$("#home").hidden && (!G || G.demo);
+  JOIN = opts;
+  if (onHome) renderJoin(); else goHome();
+};
+API.enterClass = function (opts) {
+  JOIN = null; CLASS = opts;
+  LS_NS = "u" + String(opts.token || "").replace(/[^a-z0-9]/gi, "").slice(0, 10);
+  SETS = opts.sets || [];
+  primeProgress(opts.progress);
+  lsSet("bs.lastClass", JSON.stringify({ code: opts.code, className: opts.className, student: opts.student }));
+  goHome();
+};
+API.leaveClass = function (quiet) {
+  if (!CLASS && !JOIN) return;
+  CLASS = null; JOIN = null; LS_NS = ""; SETS = DEMO_SETS;
+  if (!quiet) goHome();
+};
+if (/[?&]debug\b/.test(location.search)) window.__BS = { G: function () { return G; } };
+API.inClass = function () { return !!(CLASS || JOIN); };
 API.closeWorkshop = function () { if (!$("#teacher").hidden) closeTeacher(true); };
 API.isDirty = function () { return !!(dbMode && dirty); };
 })();
