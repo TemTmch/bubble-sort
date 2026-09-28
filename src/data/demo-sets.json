@@ -1,0 +1,812 @@
+{
+ "version": 1,
+ "sets": [
+  {
+   "id": "animals",
+   "title": "Animals around us",
+   "grade": "Year 2",
+   "lang": "en-GB",
+   "cats": [
+    {
+     "name": "Farm animals",
+     "words": [
+      {
+       "w": "cow",
+       "h": ""
+      },
+      {
+       "w": "pig",
+       "h": ""
+      },
+      {
+       "w": "sheep",
+       "h": ""
+      },
+      {
+       "w": "goat",
+       "h": ""
+      },
+      {
+       "w": "hen",
+       "h": ""
+      },
+      {
+       "w": "horse",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Sea animals",
+     "words": [
+      {
+       "w": "shark",
+       "h": ""
+      },
+      {
+       "w": "whale",
+       "h": ""
+      },
+      {
+       "w": "octopus",
+       "h": ""
+      },
+      {
+       "w": "crab",
+       "h": ""
+      },
+      {
+       "w": "dolphin",
+       "h": ""
+      },
+      {
+       "w": "jellyfish",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Minibeasts",
+     "words": [
+      {
+       "w": "ant",
+       "h": ""
+      },
+      {
+       "w": "bee",
+       "h": ""
+      },
+      {
+       "w": "beetle",
+       "h": ""
+      },
+      {
+       "w": "butterfly",
+       "h": ""
+      },
+      {
+       "w": "ladybird",
+       "h": ""
+      },
+      {
+       "w": "snail",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Birds",
+     "words": [
+      {
+       "w": "owl",
+       "h": ""
+      },
+      {
+       "w": "eagle",
+       "h": ""
+      },
+      {
+       "w": "parrot",
+       "h": ""
+      },
+      {
+       "w": "penguin",
+       "h": ""
+      },
+      {
+       "w": "swan",
+       "h": ""
+      },
+      {
+       "w": "robin",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Wild animals",
+     "words": [
+      {
+       "w": "lion",
+       "h": ""
+      },
+      {
+       "w": "tiger",
+       "h": ""
+      },
+      {
+       "w": "zebra",
+       "h": ""
+      },
+      {
+       "w": "giraffe",
+       "h": ""
+      },
+      {
+       "w": "elephant",
+       "h": ""
+      },
+      {
+       "w": "monkey",
+       "h": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "maths-words",
+   "title": "Maths vocabulary",
+   "grade": "Year 4–5",
+   "lang": "en-GB",
+   "cats": [
+    {
+     "name": "2D shapes",
+     "words": [
+      {
+       "w": "circle",
+       "h": ""
+      },
+      {
+       "w": "triangle",
+       "h": ""
+      },
+      {
+       "w": "square",
+       "h": ""
+      },
+      {
+       "w": "rectangle",
+       "h": ""
+      },
+      {
+       "w": "pentagon",
+       "h": ""
+      },
+      {
+       "w": "hexagon",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "3D shapes",
+     "words": [
+      {
+       "w": "cube",
+       "h": ""
+      },
+      {
+       "w": "sphere",
+       "h": ""
+      },
+      {
+       "w": "cone",
+       "h": ""
+      },
+      {
+       "w": "cylinder",
+       "h": ""
+      },
+      {
+       "w": "pyramid",
+       "h": ""
+      },
+      {
+       "w": "prism",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Units of length",
+     "words": [
+      {
+       "w": "millimetre",
+       "h": "mm"
+      },
+      {
+       "w": "centimetre",
+       "h": "cm"
+      },
+      {
+       "w": "metre",
+       "h": "m"
+      },
+      {
+       "w": "kilometre",
+       "h": "km"
+      }
+     ]
+    },
+    {
+     "name": "Units of time",
+     "words": [
+      {
+       "w": "second",
+       "h": ""
+      },
+      {
+       "w": "minute",
+       "h": ""
+      },
+      {
+       "w": "hour",
+       "h": ""
+      },
+      {
+       "w": "day",
+       "h": ""
+      },
+      {
+       "w": "week",
+       "h": ""
+      },
+      {
+       "w": "year",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Calculation words",
+     "words": [
+      {
+       "w": "sum",
+       "h": "a + b"
+      },
+      {
+       "w": "difference",
+       "h": "a − b"
+      },
+      {
+       "w": "product",
+       "h": "a × b"
+      },
+      {
+       "w": "quotient",
+       "h": "a ÷ b"
+      },
+      {
+       "w": "total",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Angles",
+     "words": [
+      {
+       "w": "acute",
+       "h": "< 90°"
+      },
+      {
+       "w": "obtuse",
+       "h": "90°–180°"
+      },
+      {
+       "w": "right angle",
+       "h": "90°"
+      },
+      {
+       "w": "reflex",
+       "h": "> 180°"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "food-ru",
+   "title": "Food and drinks",
+   "grade": "Year 3 · EN → RU",
+   "lang": "en-GB",
+   "cats": [
+    {
+     "name": "Fruit",
+     "words": [
+      {
+       "w": "apple",
+       "h": "яблоко"
+      },
+      {
+       "w": "pear",
+       "h": "груша"
+      },
+      {
+       "w": "banana",
+       "h": "банан"
+      },
+      {
+       "w": "cherry",
+       "h": "вишня"
+      },
+      {
+       "w": "grape",
+       "h": "виноград"
+      },
+      {
+       "w": "lemon",
+       "h": "лимон"
+      }
+     ]
+    },
+    {
+     "name": "Vegetables",
+     "words": [
+      {
+       "w": "carrot",
+       "h": "морковь"
+      },
+      {
+       "w": "potato",
+       "h": "картофель"
+      },
+      {
+       "w": "onion",
+       "h": "лук"
+      },
+      {
+       "w": "cucumber",
+       "h": "огурец"
+      },
+      {
+       "w": "pepper",
+       "h": "перец"
+      },
+      {
+       "w": "cabbage",
+       "h": "капуста"
+      }
+     ]
+    },
+    {
+     "name": "Drinks",
+     "words": [
+      {
+       "w": "water",
+       "h": "вода"
+      },
+      {
+       "w": "milk",
+       "h": "молоко"
+      },
+      {
+       "w": "juice",
+       "h": "сок"
+      },
+      {
+       "w": "tea",
+       "h": "чай"
+      },
+      {
+       "w": "cocoa",
+       "h": "какао"
+      }
+     ]
+    },
+    {
+     "name": "Dairy",
+     "words": [
+      {
+       "w": "cheese",
+       "h": "сыр"
+      },
+      {
+       "w": "yogurt",
+       "h": "йогурт"
+      },
+      {
+       "w": "butter",
+       "h": "сливочное масло"
+      },
+      {
+       "w": "cream",
+       "h": "сливки"
+      }
+     ]
+    },
+    {
+     "name": "Grains",
+     "words": [
+      {
+       "w": "bread",
+       "h": "хлеб"
+      },
+      {
+       "w": "rice",
+       "h": "рис"
+      },
+      {
+       "w": "pasta",
+       "h": "макароны"
+      },
+      {
+       "w": "oats",
+       "h": "овсянка"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "smud183upqknf",
+   "title": "Kid's Box 1",
+   "grade": "Year 1",
+   "lang": "en-GB",
+   "cats": [
+    {
+     "name": "Colours",
+     "words": [
+      {
+       "w": "red",
+       "h": ""
+      },
+      {
+       "w": "blue",
+       "h": ""
+      },
+      {
+       "w": "yellow",
+       "h": ""
+      },
+      {
+       "w": "green",
+       "h": ""
+      },
+      {
+       "w": "orange",
+       "h": ""
+      },
+      {
+       "w": "purple",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Numbers",
+     "words": [
+      {
+       "w": "one",
+       "h": ""
+      },
+      {
+       "w": "two",
+       "h": ""
+      },
+      {
+       "w": "three",
+       "h": ""
+      },
+      {
+       "w": "four",
+       "h": ""
+      },
+      {
+       "w": "five",
+       "h": ""
+      },
+      {
+       "w": "six",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Family",
+     "words": [
+      {
+       "w": "mother",
+       "h": ""
+      },
+      {
+       "w": "father",
+       "h": ""
+      },
+      {
+       "w": "sister",
+       "h": ""
+      },
+      {
+       "w": "brother",
+       "h": ""
+      },
+      {
+       "w": "grandma",
+       "h": ""
+      },
+      {
+       "w": "grandpa",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Toys",
+     "words": [
+      {
+       "w": "ball",
+       "h": ""
+      },
+      {
+       "w": "doll",
+       "h": ""
+      },
+      {
+       "w": "kite",
+       "h": ""
+      },
+      {
+       "w": "robot",
+       "h": ""
+      },
+      {
+       "w": "train",
+       "h": ""
+      },
+      {
+       "w": "teddy bear",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Animals",
+     "words": [
+      {
+       "w": "cat",
+       "h": ""
+      },
+      {
+       "w": "dog",
+       "h": ""
+      },
+      {
+       "w": "bird",
+       "h": ""
+      },
+      {
+       "w": "fish",
+       "h": ""
+      },
+      {
+       "w": "horse",
+       "h": ""
+      },
+      {
+       "w": "rabbit",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Body Parts",
+     "words": [
+      {
+       "w": "head",
+       "h": ""
+      },
+      {
+       "w": "hand",
+       "h": ""
+      },
+      {
+       "w": "leg",
+       "h": ""
+      },
+      {
+       "w": "arm",
+       "h": ""
+      },
+      {
+       "w": "eye",
+       "h": ""
+      },
+      {
+       "w": "ear",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Classroom",
+     "words": [
+      {
+       "w": "pen",
+       "h": ""
+      },
+      {
+       "w": "pencil",
+       "h": ""
+      },
+      {
+       "w": "book",
+       "h": ""
+      },
+      {
+       "w": "bag",
+       "h": ""
+      },
+      {
+       "w": "ruler",
+       "h": ""
+      },
+      {
+       "w": "chair",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "Food",
+     "words": [
+      {
+       "w": "apple",
+       "h": ""
+      },
+      {
+       "w": "banana",
+       "h": ""
+      },
+      {
+       "w": "bread",
+       "h": ""
+      },
+      {
+       "w": "cheese",
+       "h": ""
+      },
+      {
+       "w": "egg",
+       "h": ""
+      },
+      {
+       "w": "milk",
+       "h": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "smulhr2k9p76r",
+   "title": "Our World 2",
+   "grade": "Unit 1",
+   "lang": "en-US",
+   "cats": [
+    {
+     "name": "classroom objects",
+     "words": [
+      {
+       "w": "scissors",
+       "h": ""
+      },
+      {
+       "w": "pen",
+       "h": ""
+      },
+      {
+       "w": "pencil",
+       "h": ""
+      },
+      {
+       "w": "paper",
+       "h": ""
+      },
+      {
+       "w": "glue",
+       "h": ""
+      },
+      {
+       "w": "book",
+       "h": ""
+      },
+      {
+       "w": "felt tip",
+       "h": ""
+      },
+      {
+       "w": "paintbrush",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "actions",
+     "words": [
+      {
+       "w": "cutting",
+       "h": ""
+      },
+      {
+       "w": "gluing",
+       "h": ""
+      },
+      {
+       "w": "writing",
+       "h": ""
+      },
+      {
+       "w": "reading",
+       "h": ""
+      },
+      {
+       "w": "listening",
+       "h": ""
+      },
+      {
+       "w": "drawing",
+       "h": ""
+      },
+      {
+       "w": "painting",
+       "h": ""
+      },
+      {
+       "w": "counting",
+       "h": ""
+      }
+     ]
+    },
+    {
+     "name": "subjects",
+     "words": [
+      {
+       "w": "art",
+       "h": ""
+      },
+      {
+       "w": "maths",
+       "h": ""
+      },
+      {
+       "w": "english",
+       "h": ""
+      },
+      {
+       "w": "science",
+       "h": ""
+      },
+      {
+       "w": "global citizenship",
+       "h": ""
+      },
+      {
+       "w": "PE",
+       "h": ""
+      },
+      {
+       "w": "classhour",
+       "h": ""
+      },
+      {
+       "w": "russian",
+       "h": ""
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
