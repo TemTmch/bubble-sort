@@ -3,6 +3,7 @@
 import { supabase, siteUrl } from "./supabase.js";
 import demoData from "./data/demo-sets.json";
 import qrcode from "qrcode-generator";
+import { TEACHER_ME } from "./i18n-me.js";
 
 const T = {
   ru: {
@@ -238,10 +239,15 @@ const T = {
     errInvite: "Davet eklenemedi.", loadErr: "Veriler yüklenemedi. Sayfayı yenileyin."
   }
 };
-const lang = () => { try { const l = localStorage.getItem("bs.lang"); if (l === "en" || l === "tr" || l === "ru") return l; } catch (e) {} return "ru"; };
+T.me = TEACHER_ME;
+const lang = () => {
+  try { const l = localStorage.getItem("bs.lang"); if (l === "en" || l === "tr" || l === "ru" || l === "me") return l; } catch (e) {}
+  const h = document.documentElement.lang; // set by the game from the browser language
+  return h === "cnr" ? "me" : h === "en" || h === "tr" ? h : "ru";
+};
 const t = (k, ...a) => { const d = T[lang()] || T.ru; const v = d[k] !== undefined ? d[k] : T.en[k]; return typeof v === "function" ? v(...a) : v; };
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const fmtDate = (d) => { try { return new Date(d).toLocaleDateString(lang() === "tr" ? "tr-TR" : lang() === "en" ? "en-GB" : "ru-RU", { day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ""; } };
+const fmtDate = (d) => { try { return new Date(d).toLocaleDateString(lang() === "tr" ? "tr-TR" : lang() === "en" ? "en-GB" : lang() === "me" ? "sr-Latn-ME" : "ru-RU", { day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ""; } };
 
 let root = null;
 let state = { view: "loading", session: null, teacher: null, sentTo: "", msg: null, busy: false, admin: { teachers: [], invites: [] }, confirmInvite: null, sets: [], importing: false,

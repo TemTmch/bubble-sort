@@ -8,7 +8,7 @@ Pupils pop bubbles by matching words:
 - **Odd one out** — find the word that doesn't belong.
 - **Word ↔ translation** — match each word with its translation.
 
-Interface languages: Russian, English, Turkish.
+Interface languages: Russian, English, Turkish, Montenegrin.
 
 ## Roadmap
 

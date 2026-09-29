@@ -1,6 +1,7 @@
 /* Bubble Sort — game + teacher workshop (ported from the Claude artifact prototype). */
 import * as PIXI from "pixi.js";
 import demoData from "./data/demo-sets.json";
+import { GAME_ME, PRINT_ME } from "./i18n-me.js";
 
 // Stage 1: standalone site. Teacher tools arrive with accounts in stage 3.
 var STANDALONE = !(window.claude && typeof window.claude.use === "function");
@@ -390,11 +391,12 @@ I18N.en.notEditor = "Only editors of this page can save. If you were given acces
 I18N.tr.notEditor = "Yalnızca bu sayfanın editörleri kaydedebilir. Size erişim verildiyse aynı hesapla Claude'a giriş yapın ve sayfayı Claude üzerinden açın. Aksi hâlde seti burada hazırlayın, «JSON'u kopyala»ya basın ve metni sayfa sahibine gönderin.";
 I18N.ru.langLabel = "Язык"; I18N.en.langLabel = "Language";
 I18N.ru.hintTr = "перевод на турецкий"; I18N.en.hintTr = "Turkish translation";
-var UI_LANGS = [["ru", "RU", "Русский"], ["en", "EN", "English"], ["tr", "TR", "Türkçe"]];
+I18N.me = GAME_ME;
+var UI_LANGS = [["ru", "RU", "Русский"], ["en", "EN", "English"], ["tr", "TR", "Türkçe"], ["me", "CG", "Crnogorski"]];
 var lang = (function () {
-  var st = lsGet("bs.lang"); if (st === "ru" || st === "en" || st === "tr") return st;
+  var st = lsGet("bs.lang"); if (st === "ru" || st === "en" || st === "tr" || st === "me") return st;
   var nav = String((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase();
-  return nav.indexOf("tr") === 0 ? "tr" : nav.indexOf("en") === 0 ? "en" : "ru";
+  return nav.indexOf("tr") === 0 ? "tr" : nav.indexOf("en") === 0 ? "en" : /^(sr|cnr|bs|hr|sh)\b/.test(nav) ? "me" : "ru";
 })();
 function t(k) { var v = I18N[lang][k]; if (v === undefined) v = I18N.en[k]; if (v === undefined) v = I18N.ru[k]; if (typeof v === "function") return v.apply(null, Array.prototype.slice.call(arguments, 1)); return v; }
 
@@ -572,7 +574,7 @@ $("#app").innerHTML =
   '<div class="sheet-wrap" id="teacher" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="wsTitle"></div></div>';
 
 function applyStatic() {
-  document.documentElement.lang = lang;
+  document.documentElement.lang = lang === "me" ? "cnr" : lang;
   $$("[data-i18n]").forEach(function (el) { el.textContent = t(el.dataset.i18n); });
 }
 
@@ -1589,8 +1591,8 @@ var IMG_RE = /^(picture|image|img|emoji|картинка|изображение|
 var ONLY_RE = /^(picture only|image only|только картинка|без слова|samo slika|yalnızca resim|sadece resim)$/i;
 var YES_RE = /^(1|x|\+|yes|y|true|да|д|evet|e|da)$/i;
 function tableHead(withPic) {
-  var h = lang === "ru" ? ["Группа", "Слово", "Перевод"] : lang === "tr" ? ["Grup", "Kelime", "Çeviri"] : ["Group", "Word", "Hint"];
-  if (withPic) h = h.concat(lang === "ru" ? ["Картинка", "Только картинка"] : lang === "tr" ? ["Resim", "Yalnızca resim"] : ["Picture", "Picture only"]);
+  var h = lang === "ru" ? ["Группа", "Слово", "Перевод"] : lang === "tr" ? ["Grup", "Kelime", "Çeviri"] : lang === "me" ? ["Grupa", "Riječ", "Prevod"] : ["Group", "Word", "Hint"];
+  if (withPic) h = h.concat(lang === "ru" ? ["Картинка", "Только картинка"] : lang === "tr" ? ["Resim", "Yalnızca resim"] : lang === "me" ? ["Slika", "Samo slika"] : ["Picture", "Picture only"]);
   return h;
 }
 
@@ -2041,14 +2043,14 @@ async function handleFile(f) {
   } catch (e) { imp = null; setStatus(t("fileBad"), "err"); renderPane(); }
 }
 function templateRows() {
-  var h = tableHead(true), yes = lang === "ru" ? "да" : lang === "tr" ? "evet" : "yes";
+  var h = tableHead(true), yes = lang === "ru" ? "да" : lang === "tr" ? "evet" : lang === "me" ? "da" : "yes";
   return [h, ["Fruit", "apple", "яблоко", "🍎", ""], ["", "pear", "груша", "🍐", ""], ["", "banana", "банан", "🍌", yes], ["", "cherry", "вишня", "", ""],
     ["Vegetables", "carrot", "морковь", "🥕", yes], ["", "onion", "лук", "", ""], ["", "potato", "картофель", "", ""], ["", "cucumber", "огурец", "🥒", ""],
     ["Drinks", "water", "вода", "", ""], ["", "milk", "молоко", "", ""], ["", "juice", "сок", "", ""], ["", "tea", "чай", "", ""]];
 }
 function setRows(s) {
   var cs = cleanSet(s), pics = cs.cats.some(function (c) { return c.words.some(function (w) { return w.img; }); });
-  var yes = lang === "ru" ? "да" : lang === "tr" ? "evet" : "yes", rows = [tableHead(pics)];
+  var yes = lang === "ru" ? "да" : lang === "tr" ? "evet" : lang === "me" ? "da" : "yes", rows = [tableHead(pics)];
   cs.cats.forEach(function (c) { c.words.forEach(function (w) { rows.push(pics ? [c.name, w.w, w.h, w.img || "", w.img && w.txt === false ? yes : ""] : [c.name, w.w, w.h]); }); });
   return rows;
 }
@@ -2231,7 +2233,8 @@ var PRINT_TXT = {
         ex3: "Her kelimeyi çevirisiyle eşleştir: harfi yaz.", key: "Cevap anahtarı", cards: "Kelime kartları",
         cardsHelp: "Kesikli çizgilerden kesin. Renkli grup kartlarını dizin, kelime kartlarını altlarına yerleştirin." }
 };
-var printLang = (function () { var v = lsGet("bs.printLang"); return v === "ru" || v === "tr" ? v : "en"; })();
+PRINT_TXT.me = PRINT_ME;
+var printLang = (function () { var v = lsGet("bs.printLang"); return v === "ru" || v === "tr" || v === "me" ? v : "en"; })();
 var printHints = lsGet("bs.printHints") !== "0";
 var PRINT_CSS = ".pimg{display:block;margin:0 auto 3px;max-width:64px;max-height:64px;object-fit:contain}.pemo{display:block;font-size:30px;line-height:1.15;text-align:center}.bank .pimg{max-width:44px;max-height:44px}.bank .pemo{font-size:24px}" + "@page{size:A4;margin:12mm}*{box-sizing:border-box}html{-webkit-print-color-adjust:exact;print-color-adjust:exact}" +
   "body{margin:0 auto;max-width:190mm;padding:6mm 0;font-family:'Nunito',Arial,sans-serif;color:#15304A;font-size:12pt;line-height:1.35}" +
@@ -2253,7 +2256,7 @@ var PRINT_CSS = ".pimg{display:block;margin:0 auto 3px;max-width:64px;max-height
   "@media screen{body{padding:10mm 6mm}}";
 
 function printPage(title, body) {
-  return "<!doctype html>\n<html lang=\"" + printLang + "\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>" + esc(title) +
+  return "<!doctype html>\n<html lang=\"" + (printLang === "me" ? "cnr" : printLang) + "\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>" + esc(title) +
     "</title><style>" + $("#bs-fonts").textContent + PRINT_CSS + "</style></head><body>" + body + "</body></html>\n";
 }
 function printSetData(s) {
@@ -2329,7 +2332,7 @@ function buildCards(s) {
 function printBox(s, playable) {
   return '<div class="printbox"><p class="lbl">' + esc(t("printT")) + "</p>" +
     '<div class="row"><label class="inline" for="prLang">' + esc(t("printLang")) + '</label><select id="prLang">' +
-    [["en", "English"], ["ru", "Русский"], ["tr", "Türkçe"]].map(function (l) { return '<option value="' + l[0] + '"' + (l[0] === printLang ? " selected" : "") + ">" + l[1] + "</option>"; }).join("") + "</select></div>" +
+    [["en", "English"], ["ru", "Русский"], ["tr", "Türkçe"], ["me", "Crnogorski"]].map(function (l) { return '<option value="' + l[0] + '"' + (l[0] === printLang ? " selected" : "") + ">" + l[1] + "</option>"; }).join("") + "</select></div>" +
     '<label class="check-row"><input type="checkbox" id="prHints"' + (printHints ? " checked" : "") + "><span>" + esc(t("printHints")) + "</span></label>" +
     '<div class="row"><button class="btn ghost small" type="button" id="prCards"' + (playable ? "" : " disabled") + ">" + esc(t("printCards")) + '</button><button class="btn ghost small" type="button" id="prSheet"' + (playable ? "" : " disabled") + ">" + esc(t("printSheet")) + "</button></div>" +
     '<p class="help">' + esc(t("printHelp")) + "</p></div>";
@@ -2501,7 +2504,7 @@ API.leaveClass = function (quiet) {
   CLASS = null; JOIN = null; LS_NS = ""; SETS = DEMO_SETS;
   if (!quiet) goHome();
 };
-if (/[?&]debug\b/.test(location.search)) window.__BS = { G: function () { return G; }, api: API };
+if (/[?&]debug\b/.test(location.search)) window.__BS = { G: function () { return G; }, api: API, I18N: I18N, PRINT_TXT: PRINT_TXT };
 API.isPlaying = function () { return !!(G && !G.demo && !G.over && $("#home").hidden); };
 API.inClass = function () { return !!(CLASS || JOIN); };
 API.closeWorkshop = function () { if (!$("#teacher").hidden) closeTeacher(true); };
