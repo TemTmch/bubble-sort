@@ -1,4 +1,7 @@
 :root{color-scheme:light}
+/* Phones: no double-tap zoom, no text inflation, no rubber-band scrolling that drags the whole game */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{overscroll-behavior:none}
 body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 :root{
   --ground:#E3EEF0; --ground-2:#F3F9F9; --panel:#FBFDFD; --panel-2:#EDF4F5;
@@ -34,6 +37,10 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
   --shadow:0 18px 50px -20px rgba(0,0,0,.7);
 }
 html,body{height:100%}
+@supports (height:100dvh){html,body{height:100dvh}}
+/* The game view is one fixed screen; only the teacher area scrolls the page */
+body:has(> #app:not([hidden])){overflow:hidden}
+body:has(> #teacher-view:not([hidden])){height:auto;min-height:100%}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -400,3 +407,48 @@ button{cursor:pointer}
 .st-bar span{display:block;height:100%;border-radius:0 6px 6px 0;background:var(--rim)}
 .st-num{font-size:12.5px;font-weight:700;color:var(--ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
 @media (max-width:560px){.st-bars li{grid-template-columns:1fr auto}.st-bar{grid-column:1/-1;order:3}.st-det{grid-template-columns:1fr}}
+
+/* Phones: inputs at 16px so iOS doesn't zoom in on focus; code box wraps on narrow screens */
+@media (max-width:560px){
+  input,select,textarea{font-size:16px!important}
+  .code-form .row{flex-wrap:wrap}
+  .code-form input{max-width:none;flex:1 1 150px}
+}
+.classbox{grid-template-columns:minmax(0,1fr)}
+.classbox > *,.code-form,.code-form .row{min-width:0}
+.code-form input{width:0}
+.btn.google{background:var(--panel);color:var(--ink);border:1.5px solid var(--line);justify-content:center;gap:10px}
+.btn.google:hover{border-color:var(--ink-soft);filter:none}
+.tv-or{margin:0;text-align:center;font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.gmenu{display:grid;gap:6px;padding:10px;border-radius:12px;background:var(--accent-soft)}
+.gmenu .lbl{margin:0}.gmenu select{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:6px 8px}
+
+/* ── library ── */
+.lib-list li{gap:8px 12px}
+.lib-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 220px}
+.lib-share,.lib-prev{flex-basis:100%;display:grid;gap:8px;padding:10px 12px;border-radius:12px;background:var(--panel)}
+.lib-share select{border:1px solid var(--line);background:var(--ground-2);border-radius:10px;padding:6px 8px;min-width:0;max-width:100%}
+.lib-chips{display:flex;flex-wrap:wrap;gap:6px}
+.lib-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--accent-soft);font-weight:700;font-size:13px}
+.lib-chip button{border:0;background:transparent;font-size:16px;line-height:1;padding:0 6px;cursor:pointer;color:var(--ink-soft)}
+.lib-prev p{margin:0;font-size:13.5px}
+/* pictures in word sets */
+.wchip.haspic{align-items:center;padding-left:5px}
+.wchip .wimg{width:24px;height:24px;border-radius:50%;object-fit:cover;flex:none}
+.wchip .wimg.emo{width:auto;height:auto;font-size:18px;line-height:1;border-radius:0}
+.wchip .wlabel{text-decoration:none;opacity:.55;font-weight:600;font-size:12.5px}
+.imgpanel{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start;border:1.5px solid var(--rim);border-radius:14px;padding:12px;margin:8px 0;background:var(--panel)}
+.imgprev{width:96px;height:96px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;overflow:hidden}
+.imgprev .bigpic{width:100%;height:100%;object-fit:cover}
+.imgprev .bigpic.emo{width:auto;height:auto;font-size:54px;line-height:1}
+.imgprev .noimg{font-size:12px;color:var(--ink-soft);text-align:center;padding:6px}
+.imgctl{display:flex;flex-direction:column;gap:8px;min-width:0}
+.imgctl .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.imgctl input[type=text]{flex:1;min-width:0}
+.imgctl .filebtn{position:relative;overflow:hidden;align-self:flex-start;cursor:pointer}
+.imgctl .filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.emojis{display:flex;flex-wrap:wrap;gap:4px}
+.emo-btn{font-size:20px;line-height:1;padding:4px 6px;border-radius:8px;border:1px solid var(--rim);background:transparent;cursor:pointer}
+.emo-btn:hover{background:var(--accent-soft)}
+@media (max-width:520px){.imgpanel{grid-template-columns:minmax(0,1fr)}.imgprev{width:72px;height:72px}}
+.offline-note{margin:4px 0 12px;padding:8px 12px;border-radius:12px;background:var(--accent-soft);font-weight:600;font-size:14px}

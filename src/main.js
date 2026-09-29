@@ -17,7 +17,7 @@ const teacherEl = document.getElementById("teacher-view");
 function route() {
   const h = location.hash;
   const workshop = h.indexOf("#/teacher/sets") === 0;
-  const teacher = !workshop && (h.indexOf("#/teacher") === 0 || /access_token=|error_description=/.test(h));
+  const teacher = !workshop && (h.indexOf("#/teacher") === 0 || /access_token=|error_description=/.test(h + location.search));
   appEl.hidden = teacher;
   teacherEl.hidden = !teacher;
   document.title = teacher || workshop ? "Bubble Sort · Teacher" : "Bubble Sort";
@@ -32,3 +32,8 @@ function route() {
 window.addEventListener("beforeunload", (e) => { if (game.isDirty()) { e.preventDefault(); e.returnValue = ""; } });
 window.addEventListener("hashchange", route);
 route();
+
+// Offline mode: the service worker keeps the game working without internet once opened.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
+}

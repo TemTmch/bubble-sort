@@ -25,7 +25,9 @@ async function rpc(fn, args) {
 
 const cleanCode = (c) => String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 const pendKey = (tok) => "bs.pending." + tok;
+const stateKey = (code) => "bs.state." + code;
 let current = null; // code being opened, to ignore stale async results
+let onlineHook = null;
 
 function queue(tok, item) {
   let list = []; try { list = JSON.parse(ls.get(pendKey(tok)) || "[]"); } catch (e) {}
@@ -54,13 +56,16 @@ export async function openClass(game, rawCode) {
   current = code;
   const tokKey = "bs.token." + code;
   const retry = () => openClass(game, code);
-  const enter = (tok, st) => {
+  const enter = (tok, st, offline) => {
     if (current !== code) return;
-    flush(tok);
+    if (!offline) { ls.set(stateKey(code), JSON.stringify({ token: tok, st })); flush(tok); }
+    if (onlineHook) window.removeEventListener("online", onlineHook);
+    onlineHook = () => { flush(tok); if (offline && current === code && !game.isPlaying()) openClass(game, code); };
+    window.addEventListener("online", onlineHook);
     game.enterClass({
-      code, token: tok, className: st.class, student: st.student, sets: st.sets || [], progress: st.progress || [],
+      code, token: tok, className: st.class, student: st.student, sets: st.sets || [], progress: st.progress || [], offline: !!offline,
       onProgress: (setId, kind, data) => push(tok, setId, kind, data),
-      onForget: () => { ls.del(tokKey); ls.del("bs.lastClass"); openClass(game, code); }
+      onForget: () => { ls.del(tokKey); ls.del(stateKey(code)); ls.del("bs.lastClass"); openClass(game, code); }
     });
   };
   game.showJoin({ state: "loading", code });
@@ -69,7 +74,7 @@ export async function openClass(game, rawCode) {
     if (tok) {
       const st = await rpc("student_state", { p_token: tok });
       if (st) return enter(tok, st);
-      ls.del(tokKey);
+      ls.del(tokKey); ls.del(stateKey(code));
     }
     const pv = await rpc("class_preview", { p_code: code });
     if (current !== code) return;
@@ -88,6 +93,9 @@ export async function openClass(game, rawCode) {
     game.showJoin({ state: "name", code, className: pv.name, onJoin: join });
   } catch (e) {
     if (current !== code) return;
+    // No internet: open the copy of the class saved on the last visit; progress is queued and sent later.
+    let saved = null; try { saved = JSON.parse(ls.get(stateKey(code)) || "null"); } catch (err) {}
+    if (e.network && saved && saved.token === ls.get(tokKey)) return enter(saved.token, saved.st, true);
     game.showJoin({ state: "neterr", code, onRetry: retry });
   }
 }

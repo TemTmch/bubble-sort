@@ -353,6 +353,30 @@ Object.assign(I18N.tr, { haveCode: "Sınıf kodun var mı?", codePh: "ör. K7QX4
   toMain: "← Ana sayfa", hiName: function (n) { return "Merhaba " + n + "! Bir set seç"; }, notMe: "Bu ben değilim",
   leaveClass: "Sınıftan çık", noClassSets: "Öğretmenin bu sınıfa henüz set eklemedi.", badName: "Adını yaz — en fazla 40 harf.",
   loadingK: "Yükleniyor…", howToPlay: "Nasıl oynanır" });
+I18N.ru.delUsed = function (c) { return "Этот набор используется в классах: " + c + ". После сохранения он исчезнет у их учеников вместе с прогрессом по нему. Удалить?"; };
+I18N.en.delUsed = function (c) { return "This set is used in classes: " + c + ". After saving, it disappears for those pupils together with their progress on it. Delete?"; };
+I18N.tr.delUsed = function (c) { return "Bu set şu sınıflarda kullanılıyor: " + c + ". Kaydettikten sonra bu öğrencilerden, üzerindeki ilerlemeleriyle birlikte kaybolur. Silinsin mi?"; };
+Object.assign(I18N.ru, { gMoveCopy: "Копировать или переместить группу в другой набор", gToSet: "В набор", gCopy: "Копировать", gMove: "Переместить",
+  gCopied: function (g, x) { return "Группа «" + g + "» скопирована в «" + x + "». Не забудьте сохранить."; }, gMoved: function (g, x) { return "Группа «" + g + "» перемещена в «" + x + "». Не забудьте сохранить."; } });
+Object.assign(I18N.en, { gMoveCopy: "Copy or move this group to another set", gToSet: "To set", gCopy: "Copy", gMove: "Move",
+  gCopied: function (g, x) { return "“" + g + "” copied to “" + x + "”. Remember to save."; }, gMoved: function (g, x) { return "“" + g + "” moved to “" + x + "”. Remember to save."; } });
+Object.assign(I18N.tr, { gMoveCopy: "Bu grubu başka bir sete kopyala veya taşı", gToSet: "Hedef set", gCopy: "Kopyala", gMove: "Taşı",
+  gCopied: function (g, x) { return "«" + g + "» grubu «" + x + "» setine kopyalandı. Kaydetmeyi unutmayın."; }, gMoved: function (g, x) { return "«" + g + "» grubu «" + x + "» setine taşındı. Kaydetmeyi unutmayın."; } });
+I18N.ru.offlineNote = "Нет интернета. Играть можно: результаты сохранятся на сервере, когда связь вернётся.";
+I18N.en.offlineNote = "No internet. You can still play: results will be saved when the connection is back.";
+I18N.tr.offlineNote = "İnternet yok. Yine de oynayabilirsin: sonuçlar bağlantı gelince kaydedilecek.";
+Object.assign(I18N.ru, { picBtn: "Картинка", picNone: "нет картинки", picUpload: "Загрузить картинку", picUploading: "Загружаю…", picUploaded: "Картинка загружена. Не забудьте сохранить.",
+  picUploadErr: "Не удалось загрузить картинку (до 2 МБ: PNG, JPG, WebP, GIF).", picUrlPh: "ссылка на картинку или эмодзи 🍎", picApply: "Применить",
+  picWithWord: "Показывать слово вместе с картинкой", picHelp: "Без галочки в пузыре будет только картинка. Слово всё равно нужно: его видит учитель в статистике и в ответах к печати.",
+  picRemove: "Убрать картинку", picDone: "Готово", picTextNote: "Картинки добавляются во вкладке «Карточки» и при правке текста сохраняются." });
+Object.assign(I18N.en, { picBtn: "Picture", picNone: "no picture", picUpload: "Upload a picture", picUploading: "Uploading…", picUploaded: "Picture uploaded. Remember to save.",
+  picUploadErr: "Couldn't upload the picture (up to 2 MB: PNG, JPG, WebP, GIF).", picUrlPh: "picture link or an emoji 🍎", picApply: "Apply",
+  picWithWord: "Show the word together with the picture", picHelp: "Unticked, the bubble shows only the picture. The word is still needed: the teacher sees it in statistics and printed answers.",
+  picRemove: "Remove picture", picDone: "Done", picTextNote: "Pictures are added in the Cards tab and are kept when you edit the text." });
+Object.assign(I18N.tr, { picBtn: "Resim", picNone: "resim yok", picUpload: "Resim yükle", picUploading: "Yükleniyor…", picUploaded: "Resim yüklendi. Kaydetmeyi unutmayın.",
+  picUploadErr: "Resim yüklenemedi (en fazla 2 MB: PNG, JPG, WebP, GIF).", picUrlPh: "resim bağlantısı ya da emoji 🍎", picApply: "Uygula",
+  picWithWord: "Kelimeyi resimle birlikte göster", picHelp: "İşaretsizse baloncukta yalnızca resim olur. Kelime yine de gerekli: öğretmen onu istatistikte ve basılı cevaplarda görür.",
+  picRemove: "Resmi kaldır", picDone: "Tamam", picTextNote: "Resimler «Kartlar» sekmesinden eklenir ve metin düzenlenince korunur." });
 I18N.ru.saveDb = "Сохранить"; I18N.en.saveDb = "Save"; I18N.tr.saveDb = "Kaydet";
 I18N.ru.savedDb = "Сохранено в вашей библиотеке."; I18N.en.savedDb = "Saved to your library."; I18N.tr.savedDb = "Kitaplığınıza kaydedildi.";
 I18N.ru.saveDbErr = "Не удалось сохранить. Проверьте интернет и попробуйте снова."; I18N.en.saveDbErr = "Couldn't save. Check your connection and try again."; I18N.tr.saveDbErr = "Kaydedilemedi. Bağlantınızı kontrol edip tekrar deneyin.";
@@ -482,7 +506,8 @@ function makePairs(set, L) {
   var miss = missOf(set), n = pairsShape(set, L).n, colors = shuffle(CAT_COLORS.slice()), seenH = {};
   var picks = orderWords(hintedWords(set), miss).filter(function (x) { var k = x.h.toLowerCase(); if (seenH[k]) return false; seenH[k] = 1; return true; }).slice(0, n);
   var groups = picks.map(function (x, i) {
-    return { name: x.w, words: [{ w: x.w, h: x.h }, { w: x.h, h: x.w, alt: true }], color: colors[i % colors.length] };
+    var word = { w: x.w, h: x.h }; if (x.img) { word.img = x.img; if (x.txt === false) word.txt = false; }
+    return { name: x.w, words: [word, { w: x.h, h: x.w, alt: true }], color: colors[i % colors.length] };
   });
   return { groups: groups, moves: groups.length + slackFor(L), seconds: groups.length * 8 + 10 };
 }
@@ -696,16 +721,33 @@ function makeText(size, weight) {
 }
 function small() { return stageSize().W < 600; }
 
+/* Pictures: a word item may carry img (an https URL or an emoji) and txt:false for picture-only. */
+function isUrl(v) { return /^https?:\/\//i.test(String(v || "")); }
+var texCache = {};
+function loadTex(url) {
+  if (!texCache[url]) texCache[url] = new Promise(function (res) {
+    var im = new Image(); im.crossOrigin = "anonymous"; im.decoding = "async";
+    im.onload = function () { try { res(PIXI.Texture.from(im)); } catch (e) { res(null); } };
+    im.onerror = function () { res(null); };
+    im.src = url;
+  });
+  return texCache[url];
+}
+function makeEmoji() {
+  return new PIXI.Text({ text: "", style: { fontFamily: "Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Segoe UI Symbol, sans-serif", fontSize: 40, align: "center" } });
+}
+function wordLabel(x) { return x.img && !isUrl(x.img) && x.txt === false ? x.img : x.w; }
 function newBubble(gi, words, x, y, r0) {
   var node = new PIXI.Container();
   var g = new PIXI.Graphics();
+  var pic = new PIXI.Container();
   var txt = makeText(20, 800); txt.anchor.set(0.5);
   var sub = makeText(12, 800); sub.anchor.set(0.5);
   var tag = makeText(11, 800); tag.anchor.set(0.5);
-  node.addChild(g); node.addChild(txt); node.addChild(sub); node.addChild(tag);
+  node.addChild(g); node.addChild(pic); node.addChild(txt); node.addChild(sub); node.addChild(tag);
   node.eventMode = "static"; node.cursor = "pointer";
   var b = { gi: gi, words: words, x: x, y: y, vx: 0, vy: 0, r0: r0, R: r0, r: r0 * 0.2, s: 1, sel: false,
-            node: node, g: g, txt: txt, sub: sub, tag: tag, shake: 0, flying: false, dead: false, ph: Math.random() * 6.28, flash: 0 };
+            node: node, g: g, txt: txt, sub: sub, tag: tag, pic: pic, shake: 0, flying: false, dead: false, ph: Math.random() * 6.28, flash: 0 };
   node.on("pointertap", function () { if (G && G.kbd) { G.kbd = false; if (G.focus && !G.focus.dead) drawBubble(G.focus); } onTap(b); });
   world.addChild(node);
   refreshBubble(b);
@@ -753,6 +795,7 @@ function refreshBubble(b) {
   var R = b.R, n = b.words.length, revealed = G && G.revealed[b.gi];
   b.txt.style.fill = theme.ink; b.sub.style.fill = theme.soft; b.tag.style.fill = theme.ink;
   if (b.done) {
+    b.pic.removeChildren().forEach(function (c) { c.destroy(); });
     var grp = G.groups[b.gi], hints = b.words.some(function (x) { return x.h; });
     if (G.kind === "pairs") { hints = false; }
     b.tag.text = G.kind === "pairs" ? grp.words[0].w : grp.name; b.tag.style.fill = hexNum(grp.color);
@@ -765,13 +808,33 @@ function refreshBubble(b) {
     b.sub.text = "";
     drawBubble(b); return;
   }
-  if (n === 1) {
+  b.pic.removeChildren().forEach(function (c) { c.destroy(); });
+  var one = n === 1 ? b.words[0] : null;
+  if (one && one.img) {
+    var withText = one.txt !== false, box = R * (withText ? 1.02 : 1.42), py = withText ? -R * 0.2 : 0;
+    if (isUrl(one.img)) {
+      loadTex(one.img).then(function (tex) {
+        if (!tex || b.dead || !b.node || b.node.destroyed || b.words.length !== 1 || b.pic.children.length) return;
+        var sp = new PIXI.Sprite(tex), k = box / Math.min(tex.width, tex.height);
+        sp.anchor.set(0.5); sp.scale.set(k); sp.y = py;
+        var mask = new PIXI.Graphics().circle(0, py, box * 0.5).fill({ color: 0xffffff });
+        b.pic.addChild(mask); b.pic.addChild(sp); sp.mask = mask;
+      });
+    } else {
+      var em = makeEmoji(); em.anchor.set(0.5); em.text = one.img; em.style.fontSize = Math.round(R * (withText ? 0.7 : 1.05)); em.y = py;
+      b.pic.addChild(em);
+    }
+    b.txt.text = withText ? one.w : "";
+    if (withText) fitText(b.txt, R * 1.5, R * 0.4, Math.round(R * 0.27), false);
+    b.txt.y = R * 0.5;
+    b.sub.text = "";
+  } else if (n === 1) {
     b.txt.text = b.words[0].w;
     fitText(b.txt, R * 1.62, R * 1.15, Math.round(R * 0.42), /\s/.test(b.words[0].w));
     b.txt.y = revealed ? -R * 0.12 : 0;
     b.sub.text = "";
   } else {
-    var list = b.words.map(function (x) { return x.w; });
+    var list = b.words.map(wordLabel);
     if (list.length > 4) list = list.slice(0, 3).concat(["+" + (list.length - 3)]);
     b.txt.text = list.join("\n");
     fitText(b.txt, R * 1.45, R * 1.05, Math.round(R * 0.27), false);
@@ -784,7 +847,7 @@ function refreshBubble(b) {
     b.tag.text = G.groups[b.gi].name;
     b.tag.style.fill = hexNum(G.groups[b.gi].color);
     fitText(b.tag, R * 1.5, 0, Math.max(10, Math.round(R * 0.2)));
-    b.tag.y = n === 1 ? R * 0.42 : -R * 0.74;
+    b.tag.y = n === 1 ? (one && one.img ? -R * 0.78 : R * 0.42) : -R * 0.74;
   } else b.tag.text = "";
   drawBubble(b);
 }
@@ -1348,6 +1411,7 @@ function renderClassHome() {
       (s.grade ? esc(s.grade) + " · " : "") + esc(t("setMeta", cats.length, wordCount({ cats: cats }))) + '</span><span class="go">' + esc(t("goLevel", lv)) + "</span></button>";
   }).join("");
   h.innerHTML = '<div class="card"><p class="kicker">' + esc(t("classK")) + " · " + esc(CLASS.className) + '</p><h1 class="h1">' + esc(t("hiName", CLASS.student)) + "</h1>" +
+    (CLASS.offline ? '<p class="offline-note">' + esc(t("offlineNote")) + "</p>" : "") +
     (cards ? '<div class="sets">' + cards + "</div>" : '<p class="empty">' + esc(t("noClassSets")) + "</p>") +
     '<details class="rules-d"><summary>' + esc(t("howToPlay")) + '</summary><ul class="rules">' + t("rules").map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul></details>" +
     '<p class="teacher-entry class-links"><button class="linkbtn" type="button" id="notMe">' + esc(t("notMe")) + '</button><a class="linkbtn" href="#/">' + esc(t("leaveClass")) + "</a></p></div>";
@@ -1510,18 +1574,34 @@ Object.assign(I18N.en, {
 var artifactNS = null, sampleNS = null, downloadsNS = null, canEdit = false;
 var draft = null, curId = null, dirty = false, confirmDel = false, statusMsg = null;
 var wsTab = lsGet("bs.wsTab") || "cards";
+var groupMenu = -1, imgEdit = false, imgBusy = false, pendingExtra = null;
+function picHtml(x, cls) {
+  if (!x || !x.img) return "";
+  return isUrl(x.img) ? '<img class="' + cls + '" src="' + esc(x.img) + '" alt="" loading="lazy">' : '<span class="' + cls + ' emo">' + esc(x.img) + "</span>";
+}
 var selChip = null, armedGroup = -1, imp = null, aiCand = null, aiBusy = false, aiCtl = null, aiMsg = null;
 var aiForm = { topic: "", grade: "", groups: 5, words: 6, lang: "", hint: "none", traps: false, extra: "" };
 var XLSX_LOCAL = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", XLSX_CDN = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
 var GROUP_RE = /^(group|category|topic|группа|категория|тема|grupa|kategorija|grup|kategori|konu)$/i;
 var WORD_RE = /^(word|words|term|слово|слова|riječ|rijec|reč|rec|mot|wort|kelime|sözcük)$/i;
 var HINT_RE = /^(hint|translation|meaning|перевод|подсказка|значение|prijevod|prevod|traduction|übersetzung|çeviri|ipucu|anlam)$/i;
-function tableHead() { return lang === "ru" ? ["Группа", "Слово", "Перевод"] : lang === "tr" ? ["Grup", "Kelime", "Çeviri"] : ["Group", "Word", "Hint"]; }
+var IMG_RE = /^(picture|image|img|emoji|картинка|изображение|рисунок|эмодзи|slika|resim|görsel|gorsel)$/i;
+var ONLY_RE = /^(picture only|image only|только картинка|без слова|samo slika|yalnızca resim|sadece resim)$/i;
+var YES_RE = /^(1|x|\+|yes|y|true|да|д|evet|e|da)$/i;
+function tableHead(withPic) {
+  var h = lang === "ru" ? ["Группа", "Слово", "Перевод"] : lang === "tr" ? ["Grup", "Kelime", "Çeviri"] : ["Group", "Word", "Hint"];
+  if (withPic) h = h.concat(lang === "ru" ? ["Картинка", "Только картинка"] : lang === "tr" ? ["Resim", "Yalnızca resim"] : ["Picture", "Picture only"]);
+  return h;
+}
 
 function parseWord(s) { var j = s.indexOf("="); return j < 0 ? { w: s.trim(), h: "" } : { w: s.slice(0, j).trim(), h: s.slice(j + 1).trim() }; }
 function cleanSet(s) {
   var cats = (s.cats || []).map(function (c) {
-    return { name: (c.name || "").trim() || "?", words: c.words.filter(function (x) { return x.w && x.w.trim(); }).map(function (x) { return { w: x.w.trim(), h: (x.h || "").trim() }; }) };
+    return { name: (c.name || "").trim() || "?", words: c.words.filter(function (x) { return x.w && x.w.trim(); }).map(function (x) {
+      var o = { w: x.w.trim(), h: (x.h || "").trim() };
+      if (x.img && String(x.img).trim()) { o.img = String(x.img).trim(); if (x.txt === false) o.txt = false; }
+      return o;
+    }) };
   }).filter(function (c) { return c.words.length; });
   return { id: s.id, title: (s.title || "").trim(), grade: (s.grade || "").trim(), lang: s.lang || "en-GB", cats: cats };
 }
@@ -1625,7 +1705,8 @@ function renderSide() {
 function renderDelBox() {
   var box = $("#delBox"); if (!box) return;
   if (!confirmDel) { box.innerHTML = ""; return; }
-  box.innerHTML = '<div class="confirm"><span>' + esc(t("delQ")) + '</span><button class="btn danger small" type="button" id="delYes">' + esc(t("delYes")) + '</button><button class="btn ghost small" type="button" id="delNo">' + esc(t("cancel")) + "</button></div>";
+  var used = dbMode && dbMode.usage && dbMode.usage[curId];
+  box.innerHTML = '<div class="confirm"><span>' + esc(used && used.length ? t("delUsed", used.join(", ")) : t("delQ")) + '</span><button class="btn danger small" type="button" id="delYes">' + esc(t("delYes")) + '</button><button class="btn ghost small" type="button" id="delNo">' + esc(t("cancel")) + "</button></div>";
   $("#delYes").onclick = function () { draft = draft.filter(function (x) { return x.id !== curId; }); curId = draft[0] ? draft[0].id : null; confirmDel = false; markDirty(); renderTeacher(); };
   $("#delNo").onclick = function () { confirmDel = false; renderDelBox(); };
 }
@@ -1655,7 +1736,9 @@ function dupKeys(cats) {
   return dup;
 }
 function addWordsTo(c, raw) {
-  var have = {}; c.words.forEach(function (x) { have[x.w.toLowerCase()] = 1; });
+  var have = {}, before = c.words.length; c.words.forEach(function (x) { have[x.w.toLowerCase()] = 1; });
+  var pe = pendingExtra; pendingExtra = null;
+  setTimeout(function () { if (pe && c.words.length === before + 1) { var nw = c.words[c.words.length - 1]; nw.img = pe.img; if (pe.txt === false) nw.txt = false; } }, 0);
   raw.split(/[,;\n\t]/).map(function (x) { return x.trim(); }).filter(Boolean).forEach(function (it) {
     var w = parseWord(it); if (!w.w || have[w.w.toLowerCase()]) return; have[w.w.toLowerCase()] = 1; c.words.push(w);
   });
@@ -1671,17 +1754,31 @@ function renderCardsPane(pane, s) {
   var dup = dupKeys(s.cats), html = '<p class="help">' + esc(t("dragHint")) + "</p>";
   if (selChip && s.cats[selChip.ci] && s.cats[selChip.ci].words[selChip.wi]) {
     var sw = s.cats[selChip.ci].words[selChip.wi];
-    html += '<div class="selbar"><b>' + esc(t("selWord", sw.w)) + '</b><button class="btn ghost small" type="button" id="selEdit">' + esc(t("editWord")) + '</button><button class="btn ghost small" type="button" id="selDel">' + esc(t("delWord")) + '</button><button class="btn ghost small" type="button" id="selCancel">' + esc(t("cancel")) + "</button></div>";
+    html += '<div class="selbar"><b>' + esc(t("selWord", sw.w)) + '</b><button class="btn ghost small" type="button" id="selPic" aria-pressed="' + !!imgEdit + '">' + esc(t("picBtn")) + '</button><button class="btn ghost small" type="button" id="selEdit">' + esc(t("editWord")) + '</button><button class="btn ghost small" type="button" id="selDel">' + esc(t("delWord")) + '</button><button class="btn ghost small" type="button" id="selCancel">' + esc(t("cancel")) + "</button></div>";
+    if (imgEdit) {
+      html += '<div class="imgpanel"><div class="imgprev">' + (sw.img ? picHtml(sw, "bigpic") : '<span class="noimg">' + esc(t("picNone")) + "</span>") + "</div><div class=\"imgctl\">" +
+        (dbMode && dbMode.uploadImage ? '<label class="btn small filebtn">' + esc(imgBusy ? t("picUploading") : t("picUpload")) + '<input type="file" id="imgFile" accept="image/png,image/jpeg,image/webp,image/gif"' + (imgBusy ? " disabled" : "") + "></label>" : "") +
+        '<div class="row"><input id="imgUrl" type="text" autocomplete="off" placeholder="' + esc(t("picUrlPh")) + '" value="' + esc(sw.img || "") + '"><button class="btn ghost small" type="button" id="imgApply">' + esc(t("picApply")) + "</button></div>" +
+        '<div class="emojis">' + ["🍎", "🍌", "🥕", "🐶", "🐱", "🐟", "🚗", "✏️", "📚", "⚽", "☀️", "🌧️", "🏠", "👕", "🔴", "3️⃣"].map(function (e) { return '<button type="button" class="emo-btn" data-emo="' + e + '">' + e + "</button>"; }).join("") + "</div>" +
+        '<label class="check-row"><input type="checkbox" id="imgTxt"' + (sw.txt === false ? "" : " checked") + "><span>" + esc(t("picWithWord")) + "</span></label>" +
+        '<p class="help">' + esc(t("picHelp")) + "</p>" +
+        '<div class="row">' + (sw.img ? '<button class="btn ghost small" type="button" id="imgRemove">' + esc(t("picRemove")) + "</button>" : "") + '<button class="btn small" type="button" id="imgDone">' + esc(t("picDone")) + "</button></div></div></div>";
+    }
   } else selChip = null;
   html += '<div class="gcards">' + s.cats.map(function (c, ci) {
     var n = c.words.length;
     return '<section class="gcard' + (n < 3 ? " short" : "") + '" data-ci="' + ci + '">' +
       '<div class="gcard-h"><input class="gname" type="text" id="gname-' + ci + '" data-ci="' + ci + '" value="' + esc(c.name) + '" placeholder="' + esc(t("groupName")) + '" aria-label="' + esc(t("groupName")) + '">' +
       '<span class="gcount">' + n + "</span>" +
+      (draft.length > 1 ? '<button class="iconbtn" type="button" data-gmenu="' + ci + '" aria-label="' + esc(t("gMoveCopy")) + '" aria-expanded="' + (groupMenu === ci) + '" title="' + esc(t("gMoveCopy")) + '">⇄</button>' : "") +
       '<button class="iconbtn' + (armedGroup === ci ? " armed" : "") + '" type="button" data-delg="' + ci + '" aria-label="' + esc(t("delGroup")) + '">' + (armedGroup === ci ? esc(t("delGroupQ")) : "×") + "</button></div>" +
+      (groupMenu === ci ? '<div class="gmenu"><label class="lbl" for="gTarget">' + esc(t("gToSet")) + '</label><select id="gTarget">' +
+        draft.filter(function (x) { return x.id !== s.id; }).map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.title || t("untitled")) + "</option>"; }).join("") +
+        '</select><div class="row"><button class="btn small" type="button" data-gcopy="' + ci + '">' + esc(t("gCopy")) + '</button><button class="btn ghost small" type="button" data-gmove="' + ci + '">' + esc(t("gMove")) + '</button><button class="btn ghost small" type="button" data-gclose="1">' + esc(t("cancel")) + "</button></div></div>" : "") +
       '<div class="wchips">' + c.words.map(function (x, wi) {
         var sel = selChip && selChip.ci === ci && selChip.wi === wi;
-        return '<button class="wchip' + (dup[x.w.toLowerCase()] ? " dup" : "") + (sel ? " sel" : "") + '" type="button" draggable="true" data-ci="' + ci + '" data-wi="' + wi + '">' + esc(x.w) + (x.h ? "<i>" + esc(x.h) + "</i>" : "") + "</button>";
+        return '<button class="wchip' + (dup[x.w.toLowerCase()] ? " dup" : "") + (sel ? " sel" : "") + (x.img ? " haspic" : "") + '" type="button" draggable="true" data-ci="' + ci + '" data-wi="' + wi + '">' + picHtml(x, "wimg") +
+          (x.img && x.txt === false ? '<s class="wlabel">' + esc(x.w) + "</s>" : esc(x.w)) + (x.h ? "<i>" + esc(x.h) + "</i>" : "") + "</button>";
       }).join("") + "</div>" +
       (selChip && selChip.ci !== ci ? '<button class="btn ghost small movehere" type="button" data-move="' + ci + '">' + esc(t("moveHere")) + "</button>" : "") +
       '<input class="wadd" type="text" id="wadd-' + ci + '" data-ci="' + ci + '" placeholder="' + esc(t("addWordPh")) + '" aria-label="' + esc(t("addWord")) + '">' +
@@ -1709,7 +1806,7 @@ function renderCardsPane(pane, s) {
   });
   $$(".wchip", pane).forEach(function (b) {
     var ci = +b.dataset.ci, wi = +b.dataset.wi;
-    b.onclick = function () { selChip = selChip && selChip.ci === ci && selChip.wi === wi ? null : { ci: ci, wi: wi }; armedGroup = -1; renderPane(); };
+    b.onclick = function () { var same = selChip && selChip.ci === ci && selChip.wi === wi; selChip = same ? null : { ci: ci, wi: wi }; if (!selChip) imgEdit = false; armedGroup = -1; renderPane(); };
     b.ondragstart = function (e) { e.dataTransfer.setData("text/plain", ci + ":" + wi); e.dataTransfer.effectAllowed = "move"; };
   });
   $$(".gcard[data-ci]", pane).forEach(function (card) {
@@ -1724,21 +1821,57 @@ function renderCardsPane(pane, s) {
   $$("[data-move]", pane).forEach(function (b) { b.onclick = function () { moveWord(selChip, +b.dataset.move); }; });
   if ($("#selEdit")) {
     $("#selEdit").onclick = function () {
-      var ci = selChip.ci, w = s.cats[ci].words.splice(selChip.wi, 1)[0]; selChip = null; changed(); renderPane();
+      var ci = selChip.ci, w = s.cats[ci].words.splice(selChip.wi, 1)[0]; selChip = null; imgEdit = false; changed(); renderPane();
+      pendingExtra = w.img ? { ci: ci, img: w.img, txt: w.txt } : null;
       var inp = $("#wadd-" + ci); inp.value = w.h ? w.w + " = " + w.h : w.w; inp.focus(); inp.select();
     };
+    var cur = function () { return s.cats[selChip.ci].words[selChip.wi]; };
+    $("#selPic").onclick = function () { imgEdit = !imgEdit; renderPane(); };
+    if (imgEdit) {
+      var setImg = function (v) { var x = cur(); v = String(v || "").trim(); if (v) x.img = v; else { delete x.img; delete x.txt; } changed(); renderPane(); };
+      $("#imgApply").onclick = function () { setImg($("#imgUrl").value); };
+      $("#imgUrl").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); setImg($("#imgUrl").value); } };
+      $$(".emo-btn", pane).forEach(function (b) { b.onclick = function () { setImg(b.dataset.emo); }; });
+      $("#imgTxt").onchange = function (e) { var x = cur(); if (e.target.checked) delete x.txt; else x.txt = false; changed(); renderPane(); };
+      if ($("#imgRemove")) $("#imgRemove").onclick = function () { setImg(""); };
+      $("#imgDone").onclick = function () { imgEdit = false; renderPane(); };
+      if ($("#imgFile")) $("#imgFile").onchange = function (e) {
+        var f = e.target.files && e.target.files[0]; if (!f) return;
+        var target = cur(); imgBusy = true; renderPane(); setStatus(t("picUploading"), "");
+        dbMode.uploadImage(f).then(function (url) { imgBusy = false; target.img = url; changed(); renderPane(); setStatus(t("picUploaded"), "ok"); },
+          function (err) { imgBusy = false; renderPane(); setStatus(t("picUploadErr") + (err && err.message ? " (" + err.message + ")" : ""), "err"); });
+      };
+    }
     $("#selDel").onclick = function () { s.cats[selChip.ci].words.splice(selChip.wi, 1); selChip = null; changed(); renderPane(); };
     $("#selCancel").onclick = function () { selChip = null; renderPane(); };
   }
+  $$("[data-gmenu]", pane).forEach(function (b) { b.onclick = function () { var ci = +b.dataset.gmenu; groupMenu = groupMenu === ci ? -1 : ci; armedGroup = -1; renderPane(); }; });
+  $$("[data-gclose]", pane).forEach(function (b) { b.onclick = function () { groupMenu = -1; renderPane(); }; });
+  var groupTo = function (ci, move) {
+    var target = draft.find(function (x) { return x.id === $("#gTarget").value; }); if (!target) return;
+    var g = s.cats[ci]; if (!g) return;
+    mergeCats(target.cats = target.cats || [], [g]);
+    if (move) s.cats.splice(ci, 1);
+    groupMenu = -1; changed(); renderPane();
+    setStatus(t(move ? "gMoved" : "gCopied", g.name || t("unnamedGroup"), target.title || t("untitled")), "ok");
+  };
+  $$("[data-gcopy]", pane).forEach(function (b) { b.onclick = function () { groupTo(+b.dataset.gcopy, false); }; });
+  $$("[data-gmove]", pane).forEach(function (b) { b.onclick = function () { groupTo(+b.dataset.gmove, true); }; });
   $("#addGroup").onclick = function () { s.cats.push({ name: "", words: [] }); changed(); renderPane(); var g = $("#gname-" + (s.cats.length - 1)); if (g) g.focus(); };
 }
 
 /* ── text ── */
+function keepPics(oldCats, newCats) {
+  var m = {};
+  (oldCats || []).forEach(function (c) { (c.words || []).forEach(function (x) { if (x.img) m[x.w.toLowerCase()] = x; }); });
+  newCats.forEach(function (c) { c.words.forEach(function (x) { var o = m[x.w.toLowerCase()]; if (o) { x.img = o.img; if (o.txt === false) x.txt = false; } }); });
+  return newCats;
+}
 function renderTextPane(pane, s) {
   if (s._text == null) s._text = setToText(s);
-  pane.innerHTML = '<div class="f"><label for="fText">' + esc(t("fWords")) + '</label><textarea id="fText" spellcheck="false"></textarea></div><p class="help">' + t("help") + "</p>";
+  pane.innerHTML = '<div class="f"><label for="fText">' + esc(t("fWords")) + '</label><textarea id="fText" spellcheck="false"></textarea></div><p class="help">' + t("help") + " " + esc(t("picTextNote")) + "</p>";
   $("#fText").value = s._text;
-  $("#fText").oninput = function (e) { s._text = e.target.value; s.cats = parseSetText(s._text).filter(function (c) { return !c.bad; }); changed(); };
+  $("#fText").oninput = function (e) { s._text = e.target.value; s.cats = keepPics(s.cats, parseSetText(s._text).filter(function (c) { return !c.bad; })); changed(); };
 }
 
 /* ── candidates preview (file + Claude) ── */
@@ -1817,9 +1950,9 @@ function parseCSV(text) {
 function normRows(rows) { return rows.map(function (r) { return (r || []).map(function (c) { return String(c == null ? "" : c).trim(); }); }).filter(function (r) { return r.some(Boolean); }); }
 function isLongFormat(rows) {
   if (!rows.length) return null;
-  var head = rows[0], gi = -1, wi = -1, hi = -1;
-  head.forEach(function (c, i) { if (gi < 0 && GROUP_RE.test(c)) gi = i; else if (wi < 0 && WORD_RE.test(c)) wi = i; else if (hi < 0 && HINT_RE.test(c)) hi = i; });
-  return gi >= 0 && wi >= 0 ? { gi: gi, wi: wi, hi: hi } : null;
+  var head = rows[0], gi = -1, wi = -1, hi = -1, ii = -1, oi = -1;
+  head.forEach(function (c, i) { if (gi < 0 && GROUP_RE.test(c)) gi = i; else if (wi < 0 && WORD_RE.test(c)) wi = i; else if (hi < 0 && HINT_RE.test(c)) hi = i; else if (ii < 0 && IMG_RE.test(c)) ii = i; else if (oi < 0 && ONLY_RE.test(c)) oi = i; });
+  return gi >= 0 && wi >= 0 ? { gi: gi, wi: wi, hi: hi, ii: ii, oi: oi } : null;
 }
 function guessLayout(rows) {
   rows = normRows(rows); if (!rows.length) return "rows";
@@ -1829,10 +1962,11 @@ function guessLayout(rows) {
 function rowsToCats(rows, layout) {
   rows = normRows(rows);
   var order = [], map = {};
-  var add = function (name, raw, hint) {
+  var add = function (name, raw, hint, img, only) {
     name = (name || "").trim(); if (!name || !raw) return;
     var w = hint ? { w: raw.trim(), h: hint.trim() } : parseWord(raw);
     if (!w.w) return;
+    if (img && String(img).trim()) { w.img = String(img).trim(); if (only && YES_RE.test(String(only).trim())) w.txt = false; }
     var key = name.toLowerCase();
     if (!map[key]) { map[key] = { name: name, words: [] }; order.push(key); }
     if (!map[key].words.some(function (x) { return x.w.toLowerCase() === w.w.toLowerCase(); })) map[key].words.push(w);
@@ -1841,7 +1975,7 @@ function rowsToCats(rows, layout) {
   var lf = isLongFormat(rows);
   if (lf) {
     var last = "";
-    rows.slice(1).forEach(function (r) { var g = r[lf.gi] || last; last = g; add(g, r[lf.wi] || "", lf.hi >= 0 ? r[lf.hi] || "" : ""); });
+    rows.slice(1).forEach(function (r) { var g = r[lf.gi] || last; last = g; add(g, r[lf.wi] || "", lf.hi >= 0 ? r[lf.hi] || "" : "", lf.ii >= 0 ? r[lf.ii] : "", lf.oi >= 0 ? r[lf.oi] : ""); });
   } else if (layout === "cols") {
     var names = rows[0];
     names.forEach(function (n, ci) { if (!n) return; rows.slice(1).forEach(function (r) { split(r[ci]).forEach(function (x) { add(n, x, ""); }); }); });
@@ -1870,12 +2004,13 @@ function readFile(f, asText) {
     if (asText) rd.readAsText(f); else rd.readAsArrayBuffer(f);
   });
 }
+function pickExtras(src, w) { var im = src.img || src.image || src.picture || src.emoji; if (im) { w.img = String(im).trim(); if (src.txt === false || src.pictureOnly === true) w.txt = false; } return w; }
 function jsonToCands(obj) {
   var list = Array.isArray(obj) ? obj : obj && Array.isArray(obj.sets) ? obj.sets : obj && obj.cats ? [obj] : null;
   if (!list) return [];
   return list.filter(function (s) { return s && Array.isArray(s.cats); }).map(function (s) {
     return { title: String(s.title || ""), grade: String(s.grade || ""), lang: s.lang || "", cats: s.cats.map(function (c) {
-      return { name: String(c.name || "?"), words: (c.words || []).map(function (w) { return typeof w === "string" ? parseWord(w) : { w: String(w.w || w.word || ""), h: String(w.h || w.hint || "") }; }).filter(function (w) { return w.w; }) };
+      return { name: String(c.name || "?"), words: (c.words || []).map(function (w) { return typeof w === "string" ? parseWord(w) : pickExtras(w, { w: String(w.w || w.word || ""), h: String(w.h || w.hint || "") }); }).filter(function (w) { return w.w; }) };
     }) };
   });
 }
@@ -1906,14 +2041,15 @@ async function handleFile(f) {
   } catch (e) { imp = null; setStatus(t("fileBad"), "err"); renderPane(); }
 }
 function templateRows() {
-  var h = tableHead();
-  return [h, ["Fruit", "apple", "яблоко"], ["", "pear", "груша"], ["", "banana", "банан"], ["", "cherry", "вишня"],
-    ["Vegetables", "carrot", "морковь"], ["", "onion", "лук"], ["", "potato", "картофель"], ["", "cucumber", "огурец"],
-    ["Drinks", "water", "вода"], ["", "milk", "молоко"], ["", "juice", "сок"], ["", "tea", "чай"]];
+  var h = tableHead(true), yes = lang === "ru" ? "да" : lang === "tr" ? "evet" : "yes";
+  return [h, ["Fruit", "apple", "яблоко", "🍎", ""], ["", "pear", "груша", "🍐", ""], ["", "banana", "банан", "🍌", yes], ["", "cherry", "вишня", "", ""],
+    ["Vegetables", "carrot", "морковь", "🥕", yes], ["", "onion", "лук", "", ""], ["", "potato", "картофель", "", ""], ["", "cucumber", "огурец", "🥒", ""],
+    ["Drinks", "water", "вода", "", ""], ["", "milk", "молоко", "", ""], ["", "juice", "сок", "", ""], ["", "tea", "чай", "", ""]];
 }
 function setRows(s) {
-  var rows = [tableHead()];
-  cleanSet(s).cats.forEach(function (c) { c.words.forEach(function (w) { rows.push([c.name, w.w, w.h]); }); });
+  var cs = cleanSet(s), pics = cs.cats.some(function (c) { return c.words.some(function (w) { return w.img; }); });
+  var yes = lang === "ru" ? "да" : lang === "tr" ? "evet" : "yes", rows = [tableHead(pics)];
+  cs.cats.forEach(function (c) { c.words.forEach(function (w) { rows.push(pics ? [c.name, w.w, w.h, w.img || "", w.img && w.txt === false ? yes : ""] : [c.name, w.w, w.h]); }); });
   return rows;
 }
 function toCSV(rows) {
@@ -2097,7 +2233,7 @@ var PRINT_TXT = {
 };
 var printLang = (function () { var v = lsGet("bs.printLang"); return v === "ru" || v === "tr" ? v : "en"; })();
 var printHints = lsGet("bs.printHints") !== "0";
-var PRINT_CSS = "@page{size:A4;margin:12mm}*{box-sizing:border-box}html{-webkit-print-color-adjust:exact;print-color-adjust:exact}" +
+var PRINT_CSS = ".pimg{display:block;margin:0 auto 3px;max-width:64px;max-height:64px;object-fit:contain}.pemo{display:block;font-size:30px;line-height:1.15;text-align:center}.bank .pimg{max-width:44px;max-height:44px}.bank .pemo{font-size:24px}" + "@page{size:A4;margin:12mm}*{box-sizing:border-box}html{-webkit-print-color-adjust:exact;print-color-adjust:exact}" +
   "body{margin:0 auto;max-width:190mm;padding:6mm 0;font-family:'Nunito',Arial,sans-serif;color:#15304A;font-size:12pt;line-height:1.35}" +
   "h1{font-family:'Unbounded',Arial,sans-serif;font-weight:700;font-size:17pt;margin:0 0 1.5mm}.sub{color:#4E6577;margin:0 0 5mm}" +
   ".namebar{display:flex;gap:10mm;margin:0 0 6mm}.namebar span{flex:1;border-bottom:1px solid #15304A;padding-bottom:1mm;color:#4E6577}" +
@@ -2127,6 +2263,10 @@ function printSetData(s) {
   });
   return { title: c.title || t("untitled"), grade: c.grade, cats: cats, hinted: hintedWords(c) };
 }
+function pw(x) {
+  var pic = !x.img ? "" : isUrl(x.img) ? '<img class="pimg" src="' + esc(x.img) + '" alt="">' : '<span class="pemo">' + esc(x.img) + "</span>";
+  return pic + (x.img && x.txt === false ? "" : esc(x.w));
+}
 function headBlock(d, P) {
   return "<h1>" + esc(d.title) + "</h1>" + (d.grade ? '<p class="sub">' + esc(d.grade) + "</p>" : "") +
     '<div class="namebar"><span>' + esc(P.name) + ':</span><span>' + esc(P.date) + ":</span></div>";
@@ -2134,8 +2274,8 @@ function headBlock(d, P) {
 function buildWorksheet(s) {
   var d = printSetData(s), P = PRINT_TXT[printLang], body = headBlock(d, P), keyHtml = "", n = 1;
   // 1. sort into groups
-  var all = []; d.cats.forEach(function (c) { c.words.forEach(function (x) { all.push(x.w); }); });
-  body += "<h2><b>" + n + "</b>" + esc(P.ex1) + '</h2><div class="bank"><span class="lbl">' + esc(P.bank) + "</span>" + shuffle(all).map(function (w) { return "<span>" + esc(w) + "</span>"; }).join("") + "</div>";
+  var all = []; d.cats.forEach(function (c) { c.words.forEach(function (x) { all.push(x); }); });
+  body += "<h2><b>" + n + "</b>" + esc(P.ex1) + '</h2><div class="bank"><span class="lbl">' + esc(P.bank) + "</span>" + shuffle(all).map(function (x) { return "<span>" + pw(x) + "</span>"; }).join("") + "</div>";
   for (var i = 0; i < d.cats.length; i += 3) {
     var chunk = d.cats.slice(i, i + 3), rows = chunk.reduce(function (m, c) { return Math.max(m, c.words.length); }, 0);
     body += '<table class="sort"><tr>' + chunk.map(function (c) { return '<th style="color:' + c.color + '">' + esc(c.name) + "</th>"; }).join("") + "</tr>";
@@ -2153,9 +2293,9 @@ function buildWorksheet(s) {
       main.words.forEach(function (x) { inMain[x.w.toLowerCase()] = 1; });
       var cand = intrCat.words.filter(function (x) { return !inMain[x.w.toLowerCase()]; });
       if (!cand.length) continue;
-      var intr = cand[rand(cand.length)].w, picks = shuffle(main.words.map(function (x) { return x.w; })).slice(0, 3);
-      var row = shuffle(picks.concat([intr]));
-      rowsHtml += '<div class="oddrow"><span class="n">' + (keys.length + 1) + ".</span>" + row.map(function (w) { return '<span class="w">' + esc(w) + "</span>"; }).join("") + "</div>";
+      var intrX = cand[rand(cand.length)], intr = intrX.w, picks = shuffle(main.words.slice()).slice(0, 3);
+      var row = shuffle(picks.concat([intrX]));
+      rowsHtml += '<div class="oddrow"><span class="n">' + (keys.length + 1) + ".</span>" + row.map(function (x) { return '<span class="w">' + pw(x) + "</span>"; }).join("") + "</div>";
       keys.push(intr + " (" + intrCat.name + " ≠ " + main.name + ")");
     }
     if (keys.length) {
@@ -2182,7 +2322,7 @@ function buildCards(s) {
   var body = "<h1>" + esc(P.cards) + " · " + esc(d.title) + '</h1><p class="sub">' + esc(P.cardsHelp) + '</p><div class="cards">';
   d.cats.forEach(function (c) {
     body += '<div class="cardp head" style="--c:' + c.color + ";--bg:" + c.color + '1f"><b>' + esc(c.name) + "</b></div>";
-    c.words.forEach(function (x) { body += '<div class="cardp"><b>' + esc(x.w) + "</b>" + (printHints && x.h ? "<i>" + esc(x.h) + "</i>" : "") + "</div>"; });
+    c.words.forEach(function (x) { body += '<div class="cardp"><b>' + pw(x) + "</b>" + (printHints && x.h ? "<i>" + esc(x.h) + "</i>" : "") + "</div>"; });
   });
   return printPage(d.title, body + "</div>");
 }
@@ -2335,7 +2475,7 @@ initCaps();
 
 /* ── API for the site shell (teacher area) ── */
 API.openWorkshop = function (opts) {
-  dbMode = { onSave: opts.onSave, onClose: opts.onClose };
+  dbMode = { onSave: opts.onSave, onClose: opts.onClose, usage: opts.usage || {}, uploadImage: opts.uploadImage || null };
   if (!(dirty && draft)) { draft = (opts.sets || []).map(copyOf); dirty = false; curId = null; }
   statusMsg = null;
   if (wsTab === "ai" && STANDALONE && !sampleNS) wsTab = "cards";
@@ -2361,7 +2501,8 @@ API.leaveClass = function (quiet) {
   CLASS = null; JOIN = null; LS_NS = ""; SETS = DEMO_SETS;
   if (!quiet) goHome();
 };
-if (/[?&]debug\b/.test(location.search)) window.__BS = { G: function () { return G; } };
+if (/[?&]debug\b/.test(location.search)) window.__BS = { G: function () { return G; }, api: API };
+API.isPlaying = function () { return !!(G && !G.demo && !G.over && $("#home").hidden); };
 API.inClass = function () { return !!(CLASS || JOIN); };
 API.closeWorkshop = function () { if (!$("#teacher").hidden) closeTeacher(true); };
 API.isDirty = function () { return !!(dbMode && dirty); };

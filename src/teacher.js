@@ -41,6 +41,25 @@ const T = {
     confNone: "Пока без ошибок — или ученики ещё не играли.", timesPupils: (n, m) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? "раз" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "раза" : "раз"} · ${m} уч.`,
     detailSets: "По наборам", detailMiss: "Путает", noMiss: "ошибок нет", lvShort: (n) => `ур. ${n}`,
     tStatsOn: "Статистика — на странице каждого класса: уровни учеников по наборам и слова, которые путают.",
+    backupT: "Резервная копия", backupP: "Все ваши наборы, классы, ученики и их прогресс одним файлом. Excel удобно открыть и посмотреть, JSON — полная копия для восстановления.",
+    backupXlsx: "Скачать всё (Excel)", backupJson: "Скачать всё (JSON)", backupBusy: "Собираю данные…", backupOk: "Файл скачан.",
+    xSets: "Наборы", xClasses: "Классы", xPupils: "Ученики", xProgress: "Прогресс",
+    cSet: "Набор", cGrade: "Класс или тема", cLang: "Язык", cGroup: "Группа", cWord: "Слово", cHint: "Перевод", cImage: "Картинка",
+    cClass: "Класс", cCode: "Код", cArchived: "Архив", cSets: "Наборы", cPupils: "Учеников", cCreated: "Создан",
+    cPupil: "Ученик", cJoined: "Вошёл", cSeen: "Был(а)", cMode: "Режим", cLevels: "Пройдено уровней", cStars: "Пузырей по уровням", cMiss: "Путает", cPlays: "Игр", cUpdated: "Обновлено", yesW: "да",
+    google: "Войти через Google", orEmail: "или по ссылке на почту", googleOff: "Вход через Google ещё не включён администратором. Войдите по почте.",
+    libT: "Библиотека наборов", libMine: "Мои", libPublic: "Общие", libInbox: "Присланные мне",
+    groupsN: (n) => { const m10 = n % 10, m100 = n % 100; return n + " " + (m10 === 1 && m100 !== 11 ? "группа" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "группы" : "групп"); },
+    wordsN: (n) => { const m10 = n % 10, m100 = n % 100; return n + " " + (m10 === 1 && m100 !== 11 ? "слово" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "слова" : "слов"); },
+    libAccess: "Доступ", libPrivate: "Личный", libPublicOne: "Общий", libSend: "Отправить коллеге", libSentTo: "Уже отправлен:",
+    libColleague: "Коллега", libSendBtn: "Отправить", libNoColleagues: "Все коллеги уже получили этот набор (или других учителей пока нет).",
+    libMineP: "Общий набор видят и могут скопировать себе все учителя сайта. Личный видите только вы и те, кому вы его отправили. Правка слов — в мастерской.",
+    libBy: (a) => `автор: ${a}`, libPreview: "Посмотреть", libTake: "Добавить к себе", libHave: "уже у вас", libDismiss: "Скрыть",
+    libPublicNone: "Общих наборов других учителей пока нет.", libInboxNone: "Вам пока ничего не присылали.",
+    libTakeP: "«Добавить к себе» делает вашу копию: её можно менять и добавлять в классы, оригинал автора не меняется.",
+    libNowPublic: "Набор стал общим — его видят все учителя.", libNowPrivate: "Набор снова личный.", libSent: (e) => `Набор отправлен: ${e}.`,
+    libTaken: (x) => `«${x}» добавлен в вашу библиотеку.`, libOpen: "Библиотека",
+    libNeedsSql: "Общие и присланные наборы появятся после обновления базы (файл 002_library_images.sql).",
     back: "← К игре", title: "Кабинет учителя", signout: "Выйти",
     loginT: "Вход для учителей", loginP: "Введите рабочую почту — пришлём ссылку для входа. Пароль не нужен.",
     email: "Почта", send: "Прислать ссылку", sending: "Отправляю…",
@@ -100,6 +119,24 @@ const T = {
     confNone: "No mistakes yet — or nobody has played.", timesPupils: (n, m) => `${n}× · ${m} pupil${m === 1 ? "" : "s"}`,
     detailSets: "By set", detailMiss: "Mixes up", noMiss: "no mistakes", lvShort: (n) => `lvl ${n}`,
     tStatsOn: "Statistics live on each class page: pupils' levels per set and the words they mix up.",
+    backupT: "Backup", backupP: "All your word sets, classes, pupils and their progress in one file. Excel is easy to open and read; JSON is a full copy for restoring.",
+    backupXlsx: "Download everything (Excel)", backupJson: "Download everything (JSON)", backupBusy: "Collecting data…", backupOk: "File downloaded.",
+    xSets: "Word sets", xClasses: "Classes", xPupils: "Pupils", xProgress: "Progress",
+    cSet: "Set", cGrade: "Class or topic", cLang: "Language", cGroup: "Group", cWord: "Word", cHint: "Hint", cImage: "Image",
+    cClass: "Class", cCode: "Code", cArchived: "Archived", cSets: "Sets", cPupils: "Pupils", cCreated: "Created",
+    cPupil: "Pupil", cJoined: "Joined", cSeen: "Last seen", cMode: "Mode", cLevels: "Levels completed", cStars: "Bubbles per level", cMiss: "Mixes up", cPlays: "Games", cUpdated: "Updated", yesW: "yes",
+    google: "Sign in with Google", orEmail: "or with an e-mail link", googleOff: "Google sign-in isn't switched on yet. Use the e-mail link.",
+    libT: "Word-set library", libMine: "Mine", libPublic: "Shared by everyone", libInbox: "Sent to me",
+    groupsN: (n) => n + (n === 1 ? " group" : " groups"), wordsN: (n) => n + (n === 1 ? " word" : " words"),
+    libAccess: "Access", libPrivate: "Private", libPublicOne: "Public", libSend: "Send to a colleague", libSentTo: "Already sent to:",
+    libColleague: "Colleague", libSendBtn: "Send", libNoColleagues: "Every colleague already has this set (or there are no other teachers yet).",
+    libMineP: "A public set can be seen and copied by every teacher on the site. A private one is seen only by you and the colleagues you send it to. Edit words in the workshop.",
+    libBy: (a) => `by ${a}`, libPreview: "Preview", libTake: "Add to mine", libHave: "you have it", libDismiss: "Hide",
+    libPublicNone: "No public sets from other teachers yet.", libInboxNone: "Nothing has been sent to you yet.",
+    libTakeP: "“Add to mine” makes your own copy: you can edit it and use it in classes; the author's original stays as it is.",
+    libNowPublic: "The set is now public — every teacher can see it.", libNowPrivate: "The set is private again.", libSent: (e) => `Set sent to ${e}.`,
+    libTaken: (x) => `“${x}” added to your library.`, libOpen: "Library",
+    libNeedsSql: "Public and received sets appear after the database update (file 002_library_images.sql).",
     back: "← Back to the game", title: "Teacher area", signout: "Sign out",
     loginT: "Teacher sign-in", loginP: "Enter your work e-mail and we'll send you a sign-in link. No password needed.",
     email: "E-mail", send: "Send link", sending: "Sending…",
@@ -159,6 +196,24 @@ const T = {
     confNone: "Henüz hata yok — ya da kimse oynamadı.", timesPupils: (n, m) => `${n} kez · ${m} öğrenci`,
     detailSets: "Setlere göre", detailMiss: "Karıştırdıkları", noMiss: "hata yok", lvShort: (n) => `sv. ${n}`,
     tStatsOn: "İstatistik her sınıfın sayfasında: öğrencilerin setlere göre seviyeleri ve karıştırdıkları kelimeler.",
+    backupT: "Yedek", backupP: "Tüm kelime setleriniz, sınıflarınız, öğrencileriniz ve ilerlemeleri tek dosyada. Excel kolayca açılıp okunur; JSON geri yükleme için tam kopyadır.",
+    backupXlsx: "Hepsini indir (Excel)", backupJson: "Hepsini indir (JSON)", backupBusy: "Veriler toplanıyor…", backupOk: "Dosya indirildi.",
+    xSets: "Setler", xClasses: "Sınıflar", xPupils: "Öğrenciler", xProgress: "İlerleme",
+    cSet: "Set", cGrade: "Sınıf veya konu", cLang: "Dil", cGroup: "Grup", cWord: "Kelime", cHint: "Çeviri", cImage: "Resim",
+    cClass: "Sınıf", cCode: "Kod", cArchived: "Arşiv", cSets: "Setler", cPupils: "Öğrenci", cCreated: "Oluşturuldu",
+    cPupil: "Öğrenci", cJoined: "Katıldı", cSeen: "Son görülme", cMode: "Mod", cLevels: "Tamamlanan seviye", cStars: "Seviyelere göre baloncuk", cMiss: "Karıştırdıkları", cPlays: "Oyun", cUpdated: "Güncellendi", yesW: "evet",
+    google: "Google ile giriş", orEmail: "ya da e-posta bağlantısıyla", googleOff: "Google ile giriş henüz açılmadı. E-posta bağlantısını kullanın.",
+    libT: "Set kitaplığı", libMine: "Benim", libPublic: "Herkese açık", libInbox: "Bana gönderilen",
+    groupsN: (n) => n + " grup", wordsN: (n) => n + " kelime",
+    libAccess: "Erişim", libPrivate: "Özel", libPublicOne: "Herkese açık", libSend: "Meslektaşa gönder", libSentTo: "Gönderildi:",
+    libColleague: "Meslektaş", libSendBtn: "Gönder", libNoColleagues: "Tüm meslektaşlarda bu set zaten var (ya da başka öğretmen yok).",
+    libMineP: "Herkese açık seti sitedeki tüm öğretmenler görür ve kopyalayabilir. Özel seti yalnızca siz ve gönderdiğiniz kişiler görür. Kelimeler atölyede düzenlenir.",
+    libBy: (a) => `yazar: ${a}`, libPreview: "Önizle", libTake: "Kitaplığıma ekle", libHave: "sizde var", libDismiss: "Gizle",
+    libPublicNone: "Henüz başka öğretmenlerden herkese açık set yok.", libInboxNone: "Size henüz bir şey gönderilmedi.",
+    libTakeP: "«Kitaplığıma ekle» kendi kopyanızı oluşturur: düzenleyebilir ve sınıflarda kullanabilirsiniz; yazarın aslı değişmez.",
+    libNowPublic: "Set artık herkese açık — tüm öğretmenler görebilir.", libNowPrivate: "Set yeniden özel.", libSent: (e) => `Set gönderildi: ${e}.`,
+    libTaken: (x) => `«${x}» kitaplığınıza eklendi.`, libOpen: "Kitaplık",
+    libNeedsSql: "Herkese açık ve gönderilen setler veritabanı güncellemesinden sonra görünür (002_library_images.sql dosyası).",
     back: "← Oyuna dön", title: "Öğretmen alanı", signout: "Çıkış",
     loginT: "Öğretmen girişi", loginP: "İş e-postanızı yazın, size giriş bağlantısı gönderelim. Şifre gerekmez.",
     email: "E-posta", send: "Bağlantı gönder", sending: "Gönderiliyor…",
@@ -207,9 +262,9 @@ export async function showTeacher(el) {
     });
   }
   // An e-mail link comes back as #access_token=… (or #error=…); clean it into #/teacher.
-  const h = location.hash;
-  if (/error_description=/.test(h)) state.msg = { kind: "err", text: t("errLink") };
-  if (/access_token=|error_description=/.test(h)) setTimeout(() => history.replaceState(null, "", location.pathname + location.search + "#/teacher"), 400);
+  const h = location.hash + location.search;
+  if (/error_description=/.test(h)) state.msg = { kind: "err", text: /provider/i.test(decodeURIComponent(h)) ? t("googleOff") : t("errLink") };
+  if (/access_token=|error_description=/.test(h)) setTimeout(() => history.replaceState(null, "", location.pathname + "#/teacher"), 400);
   if (state.teacher && state.session) { await loadPage(); return; }
   render();
   await load();
@@ -219,11 +274,13 @@ async function loadPage() {
   const s = sub();
   if (s !== lastSub) { if (lastSub !== null) state.msg = state.keepMsg ? state.msg : null; state.confirm = null; state.projector = false; lastSub = s; }
   state.keepMsg = false;
-  state.page = s.indexOf("classes/") === 0 ? "class" : s === "classes" ? "classes" : "home";
+  state.page = s.indexOf("classes/") === 0 ? "class" : s === "classes" ? "classes" : s === "library" ? "library" : "home";
   try {
     if (state.page === "home") {
       [state.sets, state.classes] = await Promise.all([loadMySets(), loadClasses()]);
       if (state.teacher.is_admin) await loadAdmin();
+    } else if (state.page === "library") {
+      await loadLibrary();
     } else if (state.page === "classes") {
       state.classes = await loadClasses();
     } else {
@@ -281,6 +338,12 @@ async function sendLink(email) {
   state.sentTo = email; state.view = "sent"; render();
 }
 
+async function signInGoogle() {
+  state.msg = null;
+  const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: siteUrl(), queryParams: { prompt: "select_account" } } });
+  if (error) { state.msg = { kind: "err", text: /provider|not enabled|unsupported/i.test(error.message || "") ? t("googleOff") : errText(error) }; render(); }
+}
+
 async function verifyCode(code) {
   code = String(code || "").replace(/\s+/g, "");
   if (!code) return;
@@ -325,7 +388,9 @@ function render() {
   let inner = "";
   if (state.view === "loading") inner = `<div class="card tv-card"><div class="thinking" aria-hidden="true"><i></i><i></i><i></i></div></div>`;
   else if (state.view === "login") inner = `<form class="card tv-card" id="tvLogin" novalidate>
-      <p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("loginT"))}</h1><p class="help">${esc(t("loginP"))}</p>
+      <p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("loginT"))}</h1>
+      <button class="btn google" type="button" data-act="google"><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>${esc(t("google"))}</button>
+      <p class="tv-or">${esc(t("orEmail"))}</p><p class="help">${esc(t("loginP"))}</p>
       <div class="f"><label for="tvEmail">${esc(t("email"))}</label><input id="tvEmail" type="email" autocomplete="email" inputmode="email" required value="${esc(state.sentTo)}"></div>
       <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(state.busy ? t("sending") : t("send"))}</button></div>
       <p class="help tv-note">${esc(t("pupils"))}</p></form>`;
@@ -334,7 +399,7 @@ function render() {
       <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(t("codeBtn"))}</button><button class="btn ghost" type="button" data-act="again">${esc(t("again"))}</button></div></form></div>`;
   else if (state.view === "noaccess") inner = `<div class="card tv-card"><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("noAccessT"))}</h1>
       <p class="help">${esc(t("noAccessP", state.session ? state.session.user.email : ""))}</p><div class="row"><button class="btn ghost" type="button" data-act="signout">${esc(t("signout"))}</button></div></div>`;
-  else if (state.view === "home") inner = state.page === "classes" ? classesHtml() : state.page === "class" && state.cls ? classHtml() : homeHtml();
+  else if (state.view === "home") inner = state.page === "classes" ? classesHtml() : state.page === "library" && state.lib ? libraryHtml() : state.page === "class" && state.cls ? classHtml() : homeHtml();
   root.innerHTML = shell(inner) + (state.projector && state.cls ? projectorHtml() : "");
   wire();
 }
@@ -344,6 +409,9 @@ function homeHtml() {
   const tile = (title, p, n) => `<div class="tv-tile" aria-disabled="true"><b>${esc(title)}</b><span>${esc(p)}</span><em>${esc(t("soon", n))}</em></div>`;
   let html = `<section class="card tv-wide"><p class="kicker">${esc(t("hello", me.email || ""))}${me.is_admin ? ` · ${esc(t("admin"))}` : ""}</p>
     <h1 class="h1">${esc(t("tilesT"))}</h1><div class="tv-tiles">${setsTile()}${classesTile()}<div class="tv-tile on"><b>${esc(t("tStats"))}</b><span>${esc(t("tStatsOn"))}</span><div class="row"><a class="btn ghost small" href="#/teacher/classes">${esc(t("openClasses"))}</a></div></div></div></section>`;
+  html += `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("backupT"))}</h2><p class="help">${esc(t("backupP"))}</p>
+    <div class="row" style="margin-top:12px"><button class="btn ghost small" type="button" data-act="bk-xlsx"${state.backingUp ? " disabled" : ""}>${esc(state.backingUp ? t("backupBusy") : t("backupXlsx"))}</button>
+    <button class="btn ghost small" type="button" data-act="bk-json"${state.backingUp ? " disabled" : ""}>${esc(t("backupJson"))}</button></div></section>`;
   if (me.is_admin) {
     const a = state.admin;
     html += `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("teachersT"))}</h2><ul class="tv-list">` +
@@ -368,7 +436,7 @@ function setsTile() {
   const names = list.slice(0, 5).map((x) => `<li>${esc(x.title || "—")}${x.grade ? ` <i>${esc(x.grade)}</i>` : ""}</li>`).join("");
   return `<div class="tv-tile on"><b>${esc(t("tSets"))}</b><span>${esc(list.length ? t("setsN", list.length) : t("noSetsYet"))}</span>
     ${list.length ? `<ul class="tv-mini">${names}${list.length > 5 ? `<li><i>${esc(t("andMore", list.length - 5))}</i></li>` : ""}</ul>` : ""}
-    <div class="row"><a class="btn small" href="#/teacher/sets">${esc(t("openWs"))}</a>
+    <div class="row"><a class="btn small" href="#/teacher/sets">${esc(t("openWs"))}</a><a class="btn ghost small" href="#/teacher/library">${esc(t("libOpen"))}</a>
     ${miss.length ? `<button class="btn ghost small" type="button" data-act="demo"${state.importing ? " disabled" : ""}>${esc(state.importing ? t("importing") : t("importDemo", miss.length))}</button>` : ""}</div></div>`;
 }
 async function importDemo() {
@@ -379,6 +447,60 @@ async function importDemo() {
   if (error) state.msg = { kind: "err", text: t("loadErr") };
   else { state.msg = { kind: "ok", text: t("importedDemo", miss.length) }; state.sets = await loadMySets(); }
   render();
+}
+
+/* ── backup ── */
+function saveFile(name, blob) {
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+async function backup(kind) {
+  state.backingUp = true; render();
+  try {
+    const q = (x) => x.then(({ data, error }) => { if (error) throw error; return data || []; });
+    const [sets, classes, csets, students, progress] = await Promise.all([
+      q(supabase.from("word_sets").select("*").eq("owner_id", state.teacher.id).order("created_at")),
+      q(supabase.from("classes").select("*").order("created_at")),
+      q(supabase.from("class_sets").select("*").order("position")),
+      q(supabase.from("students").select("id,class_id,display_name,created_at,last_seen").order("display_name")),
+      q(supabase.from("progress").select("*"))
+    ]);
+    const stamp = new Date().toISOString().slice(0, 10);
+    if (kind === "json") {
+      const data = { app: "bubble-sort", version: 1, exported_at: new Date().toISOString(), teacher: state.teacher.email, sets, classes, class_sets: csets, students, progress };
+      saveFile(`bubble-sort-backup-${stamp}.json`, new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+    } else {
+      const XLSX = await import("xlsx");
+      const setName = new Map(sets.map((x) => [x.id, x.title]));
+      const cls = new Map(classes.map((c) => [c.id, c])), stu = new Map(students.map((x) => [x.id, x]));
+      const kinds = { groups: t("kGroups"), odd: t("kOdd"), pairs: t("kPairs") };
+      const d = (v) => (v ? new Date(v).toLocaleString() : "");
+      const sheetSets = [[t("cSet"), t("cGrade"), t("cLang"), t("cGroup"), t("cWord"), t("cHint"), t("cImage")]];
+      sets.forEach((x) => (x.cats || []).forEach((c) => (c.words || []).forEach((w) => sheetSets.push([x.title, x.grade, x.lang, c.name, w.w, w.h || "", w.img || ""]))));
+      const sheetClasses = [[t("cClass"), t("cCode"), t("cArchived"), t("cSets"), t("cPupils"), t("cCreated")]];
+      classes.forEach((c) => sheetClasses.push([c.name, c.join_code, c.archived ? t("yesW") : "", csets.filter((r) => r.class_id === c.id).map((r) => setName.get(r.set_id) || "?").join(", "), students.filter((x) => x.class_id === c.id).length, d(c.created_at)]));
+      const sheetPupils = [[t("cClass"), t("cPupil"), t("cJoined"), t("cSeen")]];
+      students.forEach((x) => sheetPupils.push([(cls.get(x.class_id) || {}).name || "", x.display_name, d(x.created_at), d(x.last_seen)]));
+      const sheetProg = [[t("cClass"), t("cPupil"), t("cSet"), t("cMode"), t("cLevels"), t("cStars"), t("cMiss"), t("cPlays"), t("cUpdated")]];
+      progress.forEach((r) => {
+        const x = stu.get(r.student_id) || {};
+        const stars = Object.keys(r.stars || {}).sort((a, b) => a - b).map((L) => `${L}:${r.stars[L]}`).join(" ");
+        const miss = Object.entries(r.misses || {}).sort((a, b) => b[1] - a[1]).map(([w, n]) => `${w} (${n})`).join(", ");
+        sheetProg.push([(cls.get(x.class_id) || {}).name || "", x.display_name || "", setName.get(r.set_id) || "?", kinds[r.kind] || r.kind, Math.max(0, r.level - 1), stars, miss, r.plays, d(r.updated_at)]);
+      });
+      const wb = XLSX.utils.book_new();
+      [[t("xSets"), sheetSets], [t("xClasses"), sheetClasses], [t("xPupils"), sheetPupils], [t("xProgress"), sheetProg]].forEach(([n, rows]) => {
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws["!cols"] = rows[0].map((h, i) => ({ wch: Math.min(40, Math.max(10, ...rows.map((r) => String(r[i] == null ? "" : r[i]).length))) }));
+        XLSX.utils.book_append_sheet(wb, ws, n.slice(0, 31));
+      });
+      const out = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      saveFile(`bubble-sort-backup-${stamp}.xlsx`, new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+    }
+    state.msg = { kind: "ok", text: t("backupOk") };
+  } catch (e) { state.msg = { kind: "err", text: t("loadErr") }; }
+  state.backingUp = false; render();
 }
 
 /* ── word-set library (used by the workshop in the game shell) ── */
@@ -407,6 +529,31 @@ export async function saveMySets(list, ownerId) {
   return out;
 }
 // Opens the game's workshop on the teacher's own library. Needs a signed-in teacher.
+/* Pictures: shrink to ≤512 px and upload to the public "set-images" bucket, into the teacher's own folder. */
+async function shrinkImage(file) {
+  if (file.type === "image/gif" || !/^image\//.test(file.type)) return file;
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, 512 / Math.max(bmp.width, bmp.height));
+    if (k === 1 && file.size < 300000) return file;
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise((res) => c.toBlob(res, "image/webp", 0.85));
+    return blob && blob.type === "image/webp" ? blob : await new Promise((res) => c.toBlob(res, "image/jpeg", 0.85));
+  } catch (e) { return file; }
+}
+async function uploadImage(file, uid) {
+  if (file.size > 8 * 1024 * 1024) throw new Error("> 8 MB");
+  const blob = await shrinkImage(file);
+  if (blob.size > 2 * 1024 * 1024) throw new Error("> 2 MB");
+  const ext = blob.type === "image/webp" ? "webp" : blob.type === "image/jpeg" ? "jpg" : blob.type === "image/png" ? "png" : "gif";
+  const id = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+  const path = `${uid}/${id}.${ext}`;
+  const { error } = await supabase.storage.from("set-images").upload(path, blob, { contentType: blob.type, cacheControl: "31536000", upsert: false });
+  if (error) throw error;
+  return supabase.storage.from("set-images").getPublicUrl(path).data.publicUrl;
+}
 export async function openSetsWorkshop(api) {
   const { data } = await supabase.auth.getSession();
   const session = data.session;
@@ -416,7 +563,12 @@ export async function openSetsWorkshop(api) {
   let sets = [];
   try { sets = await loadMySets(); } catch (e) { location.hash = "#/teacher"; return; }
   if (location.hash.indexOf("#/teacher/sets") !== 0) return;
-  api.openWorkshop({ sets, onSave: (list) => saveMySets(list, me.id), onClose: () => { if (location.hash.indexOf("#/teacher/sets") === 0) location.hash = "#/teacher"; } });
+  const usage = {};
+  try {
+    const { data: cs } = await supabase.from("class_sets").select("set_id, classes(name, archived)");
+    (cs || []).forEach((r) => { if (r.classes) (usage[r.set_id] = usage[r.set_id] || []).push(r.classes.name + (r.classes.archived ? " (" + t("archived") + ")" : "")); });
+  } catch (e) {}
+  api.openWorkshop({ sets, usage, uploadImage: (f) => uploadImage(f, me.id), onSave: (list) => saveMySets(list, me.id), onClose: () => { if (location.hash.indexOf("#/teacher/sets") === 0) location.hash = "#/teacher"; } });
 }
 
 /* ── classes ── */
@@ -667,6 +819,96 @@ function classAction(a, b) {
   return true;
 }
 
+/* ── shared library: my sets (private/public/sent), public sets, sets sent to me ── */
+const countWords = (cats) => (cats || []).reduce((n, c) => n + ((c.words || []).length), 0);
+async function loadLibrary() {
+  const uid = state.teacher.id;
+  const [mine, others, dir, shares] = await Promise.all([
+    supabase.from("word_sets").select("id,title,grade,lang,cats,visibility,copied_from,updated_at").eq("owner_id", uid).order("created_at"),
+    supabase.rpc("library_sets"),
+    supabase.rpc("teacher_directory"),
+    supabase.from("set_shares").select("set_id,teacher_id")
+  ]);
+  if (mine.error) throw mine.error;
+  const libErr = others.error || dir.error;
+  const myIds = new Set((mine.data || []).map((x) => x.id));
+  const out = {};
+  (shares.data || []).forEach((r) => { if (myIds.has(r.set_id)) (out[r.set_id] = out[r.set_id] || []).push(r.teacher_id); });
+  const prev = state.lib || {};
+  state.lib = {
+    tab: prev.tab || "mine", mine: mine.data || [], others: libErr ? [] : (others.data || []), dir: dir.data || [], shares: out,
+    shareOpen: null, preview: null, needsUpdate: !!libErr
+  };
+}
+function libraryHtml() {
+  const L = state.lib, pub = L.others.filter((x) => x.public), inbox = L.others.filter((x) => x.shared);
+  const copied = new Set(L.mine.map((x) => x.copied_from).filter(Boolean));
+  const tabs = [["mine", t("libMine"), L.mine.length], ["public", t("libPublic"), pub.length], ["inbox", t("libInbox"), inbox.length]];
+  const email = (id) => (L.dir.find((d) => d.id === id) || {}).email || "?";
+  const meta = (x) => `${esc(x.grade || "")}${x.grade ? " · " : ""}${esc(t("groupsN", (x.cats || []).length))} · ${esc(t("wordsN", countWords(x.cats)))}`;
+  const preview = (x) => L.preview === x.id ? `<div class="lib-prev">${(x.cats || []).map((c) => `<p><b>${esc(c.name)}:</b> ${(c.words || []).map((w) => esc(w.w || w.img || "")).join(", ")}</p>`).join("")}</div>` : "";
+  let body = "";
+  if (L.tab === "mine") {
+    body = L.mine.length ? `<ul class="tv-list lib-list">` + L.mine.map((x) => {
+      const rec = L.shares[x.id] || [], avail = L.dir.filter((d) => rec.indexOf(d.id) < 0);
+      return `<li><div class="lib-main"><b>${esc(x.title || "—")}</b><span class="tv-date" style="margin-left:0">${meta(x)}</span></div>
+        <div class="seg" role="group" aria-label="${esc(t("libAccess"))}"><button type="button" class="segbtn" data-act="vis" data-id="${esc(x.id)}" data-v="private" aria-pressed="${x.visibility !== "public"}">${esc(t("libPrivate"))}</button><button type="button" class="segbtn" data-act="vis" data-id="${esc(x.id)}" data-v="public" aria-pressed="${x.visibility === "public"}">${esc(t("libPublicOne"))}</button></div>
+        <button class="btn ghost small" type="button" data-act="shareopen" data-id="${esc(x.id)}">${esc(t("libSend"))}${rec.length ? ` · ${rec.length}` : ""}</button>
+        ${L.shareOpen === x.id ? `<div class="lib-share">${rec.length ? `<p class="lbl">${esc(t("libSentTo"))}</p><div class="lib-chips">${rec.map((id) => `<span class="lib-chip">${esc(email(id))}<button type="button" data-act="unshare" data-id="${esc(x.id)}" data-t="${esc(id)}" aria-label="${esc(t("remove"))}">×</button></span>`).join("")}</div>` : ""}
+          ${avail.length ? `<div class="row"><select id="shareTo" aria-label="${esc(t("libColleague"))}">${avail.map((d) => `<option value="${esc(d.id)}">${esc(d.email)}</option>`).join("")}</select><button class="btn small" type="button" data-act="share" data-id="${esc(x.id)}">${esc(t("libSendBtn"))}</button></div>` : `<p class="help">${esc(t("libNoColleagues"))}</p>`}</div>` : ""}
+      </li>`;
+    }).join("") + `</ul>` : `<p class="help">${esc(t("noSetsYet"))}</p>`;
+    body += `<p class="help" style="margin-top:12px">${esc(t("libMineP"))} <a class="linkbtn" href="#/teacher/sets">${esc(t("openWs"))}</a></p>`;
+  } else {
+    const list = L.tab === "public" ? pub : inbox;
+    body = list.length ? `<ul class="tv-list lib-list">` + list.map((x) => `<li><div class="lib-main"><b>${esc(x.title || "—")}</b><span class="tv-date" style="margin-left:0">${meta(x)} · ${esc(t("libBy", x.author_name || x.author))}</span></div>
+        <button class="btn ghost small" type="button" data-act="prev" data-id="${esc(x.id)}" aria-expanded="${L.preview === x.id}">${esc(t("libPreview"))}</button>
+        ${copied.has(x.id) ? `<span class="tag">${esc(t("libHave"))}</span>` : `<button class="btn small" type="button" data-act="libtake" data-id="${esc(x.id)}">${esc(t("libTake"))}</button>`}
+        ${L.tab === "inbox" ? `<button class="btn ghost small" type="button" data-act="dismiss" data-id="${esc(x.id)}">${esc(t("libDismiss"))}</button>` : ""}
+        ${preview(x)}</li>`).join("") + `</ul>` : `<p class="help">${esc(L.tab === "public" ? t("libPublicNone") : t("libInboxNone"))}</p>`;
+    body += `<p class="help" style="margin-top:12px">${esc(t("libTakeP"))}</p>`;
+  }
+  return `<section class="card tv-wide"><a class="linkbtn" href="#/teacher">← ${esc(t("title"))}</a>
+    <h1 class="h1" style="margin-top:8px">${esc(t("libT"))}</h1>
+    ${L.needsUpdate ? `<p class="tv-msg err">${esc(t("libNeedsSql"))}</p>` : ""}
+    <div class="seg" role="tablist" style="margin:10px 0 14px">${tabs.map(([v, l, n]) => `<button type="button" class="segbtn" role="tab" data-act="libtab" data-v="${v}" aria-pressed="${L.tab === v}">${esc(l)} · ${n}</button>`).join("")}</div>
+    ${body}</section>`;
+}
+async function libraryAction(a, b) {
+  const L = state.lib; if (!L || state.page !== "library") return false;
+  const id = b.dataset.id, fail = () => { state.msg = { kind: "err", text: t("saveErrGen") }; render(); };
+  if (a === "libtab") { L.tab = b.dataset.v; L.preview = null; render(); }
+  else if (a === "prev") { L.preview = L.preview === id ? null : id; render(); }
+  else if (a === "shareopen") { L.shareOpen = L.shareOpen === id ? null : id; render(); }
+  else if (a === "vis") {
+    const { error } = await supabase.from("word_sets").update({ visibility: b.dataset.v }).eq("id", id);
+    if (error) return fail(), true;
+    L.mine.find((x) => x.id === id).visibility = b.dataset.v;
+    state.msg = { kind: "ok", text: b.dataset.v === "public" ? t("libNowPublic") : t("libNowPrivate") }; render();
+  } else if (a === "share") {
+    const to = root.querySelector("#shareTo").value;
+    const { error } = await supabase.from("set_shares").insert({ set_id: id, teacher_id: to, shared_by: state.teacher.id });
+    if (error) return fail(), true;
+    (L.shares[id] = L.shares[id] || []).push(to);
+    state.msg = { kind: "ok", text: t("libSent", (L.dir.find((d) => d.id === to) || {}).email || "") }; render();
+  } else if (a === "unshare") {
+    const { error } = await supabase.from("set_shares").delete().eq("set_id", id).eq("teacher_id", b.dataset.t);
+    if (error) return fail(), true;
+    L.shares[id] = (L.shares[id] || []).filter((x) => x !== b.dataset.t); render();
+  } else if (a === "libtake") {
+    const x = L.others.find((y) => y.id === id); if (!x) return true;
+    const { data, error } = await supabase.from("word_sets").insert({ owner_id: state.teacher.id, title: x.title, grade: x.grade, lang: x.lang, cats: x.cats, copied_from: x.id })
+      .select("id,title,grade,lang,cats,visibility,copied_from,updated_at").single();
+    if (error) return fail(), true;
+    L.mine.push(data); state.msg = { kind: "ok", text: t("libTaken", x.title) }; render();
+  } else if (a === "dismiss") {
+    const { error } = await supabase.from("set_shares").delete().eq("set_id", id).eq("teacher_id", state.teacher.id);
+    if (error) return fail(), true;
+    L.others = L.others.filter((y) => !(y.id === id && !y.public)).map((y) => (y.id === id ? { ...y, shared: false } : y)); render();
+  } else return false;
+  return true;
+}
+
 function wire() {
   const q = (s) => root.querySelector(s);
   const login = q("#tvLogin");
@@ -688,15 +930,22 @@ function wire() {
   root.querySelectorAll("[data-act]").forEach((b) => {
     b.onclick = () => {
       const a = b.dataset.act;
+      if (state.page === "library") { libraryAction(a, b).then((done) => { if (!done) other(a, b); }); return; }
       if (classAction(a, b)) return;
+      other(a, b);
+    };
+  });
+  function other(a, b) {
       if (a === "signout") signOut();
       else if (a === "again") { state.view = "login"; state.msg = null; render(); }
       else if (a === "rm") { state.confirmInvite = b.dataset.email; render(); }
       else if (a === "rm-no") { state.confirmInvite = null; render(); }
       else if (a === "rm-yes") removeInvite(b.dataset.email);
       else if (a === "demo") importDemo();
-    };
-  });
+      else if (a === "google") signInGoogle();
+      else if (a === "bk-xlsx") backup("xlsx");
+      else if (a === "bk-json") backup("json");
+  }
 }
 
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && state.projector) { state.projector = false; render(); } });

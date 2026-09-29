@@ -43,6 +43,31 @@
 **Первый вошедший становится администратором** — поэтому войдите сами сразу после шага 1.
 Дальше коллег добавляете в кабинете, в разделе «Приглашения».
 
+## 6. Обновление 002: общая библиотека и картинки
+
+Если таблицы создавались раньше (до сентября 2026), выполните один раз:
+**SQL Editor** → **New query** → вставьте весь файл [`002_library_images.sql`](./002_library_images.sql) → **Run**.
+Появятся публичные и личные наборы, отправка набора коллегам и хранилище картинок `set-images`.
+Для нового проекта это не нужно: всё уже есть в `schema.sql`.
+
+## 7. Вход через Google
+
+**А. Google Cloud** (console.cloud.google.com, любой Google-аккаунт):
+
+1. Создайте проект (например, «Bubble Sort»).
+2. **APIs & Services** → **OAuth consent screen**: тип **External**, название приложения, ваша почта; сохраните.
+   Затем нажмите **Publish app** (иначе войти смогут только тестовые пользователи).
+3. **APIs & Services** → **Credentials** → **Create credentials** → **OAuth client ID** → тип **Web application**:
+   - **Authorized JavaScript origins:** `https://temtmch.github.io`
+   - **Authorized redirect URIs:** `https://vcvcolnvuyjuuhuqhjoc.supabase.co/auth/v1/callback`
+4. Скопируйте **Client ID** и **Client secret**.
+
+**Б. Supabase:** **Authentication** → **Sign In / Providers** → **Google** → включить,
+вставить Client ID и Client secret → **Save**.
+
+Готово: на странице входа заработает кнопка «Войти через Google».
+Доступ по-прежнему только у приглашённых: почта Google-аккаунта должна совпадать с приглашённой.
+
 ## Ограничение бесплатного тарифа
 
 Встроенная почта Supabase отправляет лишь несколько писем в час на весь проект.

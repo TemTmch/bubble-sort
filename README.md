@@ -18,7 +18,13 @@ Interface languages: Russian, English, Turkish.
 4. ✅ Classes (`#/teacher/classes`): word sets per class with order, join code, pupil link, QR code (PNG), projector view, archive.
 5. ✅ Pupils join with the class link/code and a first name (`#/c/CODE`), play only their class's sets; progress and mixed-up words saved on the server (per pupil, safe on shared tablets).
 6. ✅ Class statistics on each class page: summary, pupils × sets levels per game mode, most mixed-up words, per-pupil details.
-7. Launch.
+7. ✅ Launch (September 2026).
+8. ✅ Shared library (`#/teacher/library`): private sets, public sets any teacher can copy, sending a set to chosen colleagues; move/copy groups between sets; warning before deleting a set used in classes.
+9. ✅ Pictures in groups: a picture (uploaded, link or emoji) instead of a word or together with it; `Картинка` / `Только картинка` columns in Excel/CSV; pictures in printouts.
+10. ✅ Offline mode (installable web app): the game and a pupil's class open without internet after the first visit; progress is sent when the connection returns.
+11. ✅ Google sign-in for teachers; backup of all data (Excel or JSON) from the teacher home page.
+
+Later: difficulty balance, voice-over, a short guide for colleagues.
 
 ## Development
 
