@@ -23,6 +23,7 @@ Interface languages: Russian, English, Turkish, Montenegrin.
 9. ✅ Pictures in groups: a picture (uploaded, link or emoji) instead of a word or together with it; `Картинка` / `Только картинка` columns in Excel/CSV; pictures in printouts.
 10. ✅ Offline mode (installable web app): the game and a pupil's class open without internet after the first visit; progress is sent when the connection returns.
 11. ✅ Google sign-in for teachers; backup of all data (Excel or JSON) from the teacher home page.
+12. ✅ Montenegrin interface; open teacher sign-up (Google or e-mail + password, no invitations); copy several groups between sets.
 
 Later: difficulty balance, voice-over, a short guide for colleagues.
 

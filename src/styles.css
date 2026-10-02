@@ -452,3 +452,22 @@ button{cursor:pointer}
 .emo-btn:hover{background:var(--accent-soft)}
 @media (max-width:520px){.imgpanel{grid-template-columns:minmax(0,1fr)}.imgprev{width:72px;height:72px}}
 .offline-note{margin:4px 0 12px;padding:8px 12px;border-radius:12px;background:var(--accent-soft);font-weight:600;font-size:14px}
+/* copy groups between sets */
+.gcopybtn{flex:none;border:1px solid var(--rim);background:transparent;border-radius:99px;padding:3px 9px;font-size:12.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap;cursor:pointer}
+.gcopybtn:hover,.gcopybtn[aria-expanded=true]{background:var(--accent-soft);color:inherit}
+.gbulk-row{display:flex;justify-content:flex-end;margin:0 0 8px}
+.gmenu.bulk{margin:0 0 12px}
+.gpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 12px}
+.gpick small{color:var(--ink-soft);font-weight:600}
+.gmenu .linkbtn{justify-self:start}
+@media (max-width:520px){.gcard-h{flex-wrap:wrap}.gcopybtn{order:5}}
+/* teacher sign-in in the header */
+.teacher-top{text-decoration:none;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.teacher-top .tt-short{display:none}
+.hud:not([hidden]) ~ .tools .teacher-top{display:none}
+@media (max-width:560px){.teacher-top .tt-long{display:none}.teacher-top .tt-short{display:inline}.teacher-top{padding:7px 12px;font-size:14px}}
+/* sign-in form */
+.tv-tabs{justify-self:start}
+.tv-form{display:grid;gap:12px}
+.tv-form .f .help{display:block;margin-top:4px;font-size:13px}
+.tv-show{font-size:14px;font-weight:600}

@@ -1,9 +1,10 @@
-/* Teacher area: sign-in by e-mail link (or code), dashboard shell, admin invites.
+/* Teacher area: sign-in with Google or e-mail + password (open sign-up), dashboard shell.
    Word sets (stage 3), classes (stage 4) and statistics (stage 6) plug into this view. */
 import { supabase, siteUrl } from "./supabase.js";
 import demoData from "./data/demo-sets.json";
 import qrcode from "qrcode-generator";
 import { TEACHER_ME } from "./i18n-me.js";
+import { AUTH } from "./i18n-auth.js";
 
 const T = {
   ru: {
@@ -240,6 +241,7 @@ const T = {
   }
 };
 T.me = TEACHER_ME;
+for (const k of Object.keys(AUTH)) Object.assign(T[k], AUTH[k]);
 const lang = () => {
   try { const l = localStorage.getItem("bs.lang"); if (l === "en" || l === "tr" || l === "ru" || l === "me") return l; } catch (e) {}
   const h = document.documentElement.lang; // set by the game from the browser language
@@ -249,8 +251,9 @@ const t = (k, ...a) => { const d = T[lang()] || T.ru; const v = d[k] !== undefin
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmtDate = (d) => { try { return new Date(d).toLocaleDateString(lang() === "tr" ? "tr-TR" : lang() === "en" ? "en-GB" : lang() === "me" ? "sr-Latn-ME" : "ru-RU", { day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ""; } };
 
+const GOOGLE_SVG = `<svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>`;
 let root = null;
-let state = { view: "loading", session: null, teacher: null, sentTo: "", msg: null, busy: false, admin: { teachers: [], invites: [] }, confirmInvite: null, sets: [], importing: false,
+let state = { view: "loading", session: null, teacher: null, sentTo: "", msg: null, busy: false, admin: { teachers: [] }, authMode: "in", recovery: false, sets: [], importing: false,
   page: "home", classes: [], cls: null, confirm: null, projector: false };
 let authHooked = false, lastSub = null;
 const sub = () => location.hash.replace(/^#\/teacher\/?/, "").split("?")[0];
@@ -260,6 +263,7 @@ export async function showTeacher(el) {
   if (!authHooked) {
     authHooked = true;
     supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") { state.recovery = true; state.session = session; state.view = "newpass"; render(); return; }
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
         const changed = (state.session && state.session.user.id) !== (session && session.user.id);
         state.session = session;
@@ -269,6 +273,7 @@ export async function showTeacher(el) {
   }
   // An e-mail link comes back as #access_token=… (or #error=…); clean it into #/teacher.
   const h = location.hash + location.search;
+  if (/type=recovery/.test(h)) state.recovery = true;
   if (/error_description=/.test(h)) state.msg = { kind: "err", text: /provider/i.test(decodeURIComponent(h)) ? t("googleOff") : t("errLink") };
   if (/access_token=|error_description=/.test(h)) setTimeout(() => history.replaceState(null, "", location.pathname + "#/teacher"), 400);
   if (state.teacher && state.session) { await loadPage(); return; }
@@ -301,7 +306,8 @@ async function load() {
   try {
     const { data } = await supabase.auth.getSession();
     state.session = data.session;
-    if (!state.session) { state.view = state.sentTo ? "sent" : "login"; render(); return; }
+    if (!state.session) { if (["confirm", "forgot", "resetsent"].indexOf(state.view) < 0) state.view = "login"; render(); return; }
+    if (state.recovery) { state.view = "newpass"; render(); return; }
     const { data: me, error } = await supabase.from("teachers").select("*").eq("id", state.session.user.id).maybeSingle();
     if (error) throw error;
     state.teacher = me;
@@ -315,13 +321,8 @@ async function load() {
 }
 
 async function loadAdmin() {
-  const [tq, iq] = await Promise.all([
-    supabase.from("teachers").select("id,email,is_admin,created_at").order("created_at"),
-    supabase.from("teacher_invites").select("email,created_at").order("created_at", { ascending: false })
-  ]);
+  const tq = await supabase.from("teachers").select("id,email,is_admin,created_at").order("created_at");
   state.admin.teachers = tq.data || [];
-  const joined = new Set(state.admin.teachers.map((x) => x.email));
-  state.admin.invites = (iq.data || []).filter((i) => !joined.has(i.email));
 }
 
 function errText(e) {
@@ -334,14 +335,66 @@ function errText(e) {
   return (e && e.message) || t("errNet");
 }
 
-async function sendLink(email) {
-  email = String(email || "").trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { state.msg = { kind: "err", text: t("errEmail") }; render(); return; }
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+function authErr(e) {
+  const m = String((e && (e.message || e.error_description)) || "").toLowerCase() + " " + ((e && e.code) || "");
+  if (/invalid login credentials|invalid_credentials/.test(m)) return t("errPass");
+  if (/not confirmed|email_not_confirmed/.test(m)) return t("errNotConfirmed");
+  if (/already registered|user_already_exists|already been registered/.test(m)) return t("errExists");
+  if (/weak|pwned|leaked/.test(m)) return t("errWeak");
+  if (/password.*(at least|short|characters)/.test(m)) return t("errPassShort");
+  return errText(e);
+}
+function readCreds() {
+  const email = String(root.querySelector("#tvEmail").value || "").trim().toLowerCase();
+  const pass = root.querySelector("#tvPass") ? root.querySelector("#tvPass").value : "";
+  state.sentTo = email;
+  if (!EMAIL_RE.test(email)) { state.msg = { kind: "err", text: t("errEmail") }; render(); return null; }
+  return { email, pass };
+}
+async function passwordAuth() {
+  const c = readCreds(); if (!c) return;
+  if (state.authMode === "up" && c.pass.length < 8) { state.msg = { kind: "err", text: t("errPassShort") }; render(); return; }
+  if (!c.pass) { state.msg = { kind: "err", text: t("errPass") }; render(); return; }
+  state.busy = true; state.msg = null; state.unconfirmed = false; render();
+  try {
+    if (state.authMode === "up") {
+      const { data, error } = await supabase.auth.signUp({ email: c.email, password: c.pass, options: { emailRedirectTo: siteUrl() } });
+      if (error) { state.msg = { kind: "err", text: authErr(error) }; if (/already|exists/i.test(error.message || "")) state.authMode = "in"; return; }
+      // With e-mail confirmation on, an e-mail that is already registered comes back as a user without identities.
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) { state.authMode = "in"; state.msg = { kind: "err", text: t("errExists") }; return; }
+      if (data.session) { state.busy = false; await load(); return; }
+      state.view = "confirm"; return;
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email: c.email, password: c.pass });
+    if (error) { state.msg = { kind: "err", text: authErr(error) }; state.unconfirmed = /not confirmed/i.test(error.message || ""); return; }
+    state.busy = false; await load(); return;
+  } catch (e) { state.msg = { kind: "err", text: errText(e) }; }
+  finally { if (state.busy) { state.busy = false; render(); } }
+}
+async function resendConfirm() {
+  if (!EMAIL_RE.test(state.sentTo)) return;
+  const { error } = await supabase.auth.resend({ type: "signup", email: state.sentTo, options: { emailRedirectTo: siteUrl() } });
+  state.msg = error ? { kind: "err", text: errText(error) } : { kind: "ok", text: t("resent") }; render();
+}
+async function sendReset() {
+  const c = readCreds(); if (!c) return;
   state.busy = true; state.msg = null; render();
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: siteUrl(), shouldCreateUser: true } });
+  const { error } = await supabase.auth.resetPasswordForEmail(c.email, { redirectTo: siteUrl() });
   state.busy = false;
   if (error) { state.msg = { kind: "err", text: errText(error) }; render(); return; }
-  state.sentTo = email; state.view = "sent"; render();
+  state.view = "resetsent"; render();
+}
+async function saveNewPass() {
+  const pass = root.querySelector("#tvPass").value;
+  if (pass.length < 8) { state.msg = { kind: "err", text: t("errPassShort") }; render(); return; }
+  state.busy = true; state.msg = null; render();
+  const { error } = await supabase.auth.updateUser({ password: pass });
+  state.busy = false;
+  if (error) { state.msg = { kind: "err", text: authErr(error) }; render(); return; }
+  state.recovery = false;
+  await load();
+  state.msg = { kind: "ok", text: t("passSaved") }; render();
 }
 
 async function signInGoogle() {
@@ -350,35 +403,10 @@ async function signInGoogle() {
   if (error) { state.msg = { kind: "err", text: /provider|not enabled|unsupported/i.test(error.message || "") ? t("googleOff") : errText(error) }; render(); }
 }
 
-async function verifyCode(code) {
-  code = String(code || "").replace(/\s+/g, "");
-  if (!code) return;
-  state.busy = true; state.msg = null; render();
-  const { error } = await supabase.auth.verifyOtp({ email: state.sentTo, token: code, type: "email" });
-  state.busy = false;
-  if (error) { state.msg = { kind: "err", text: t("errCode") }; render(); return; }
-  await load();
-}
-
 async function signOut() {
   await supabase.auth.signOut();
-  state = { ...state, view: "login", session: null, teacher: null, sentTo: "", msg: null, admin: { teachers: [], invites: [] } };
+  state = { ...state, view: "login", authMode: "in", session: null, teacher: null, msg: null, recovery: false, admin: { teachers: [] } };
   render();
-}
-
-async function addInvite(email) {
-  email = String(email || "").trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { state.msg = { kind: "err", text: t("errEmail") }; render(); return; }
-  const { error } = await supabase.from("teacher_invites").upsert({ email, invited_by: state.teacher.id }, { onConflict: "email" });
-  if (error) { state.msg = { kind: "err", text: t("errInvite") }; render(); return; }
-  state.msg = { kind: "ok", text: t("inviteDone", email) };
-  await loadAdmin(); render();
-}
-
-async function removeInvite(email) {
-  await supabase.from("teacher_invites").delete().eq("email", email);
-  state.confirmInvite = null;
-  await loadAdmin(); render();
 }
 
 /* ───────── rendering ───────── */
@@ -393,16 +421,34 @@ function render() {
   if (!root) return;
   let inner = "";
   if (state.view === "loading") inner = `<div class="card tv-card"><div class="thinking" aria-hidden="true"><i></i><i></i><i></i></div></div>`;
-  else if (state.view === "login") inner = `<form class="card tv-card" id="tvLogin" novalidate>
-      <p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("loginT"))}</h1>
-      <button class="btn google" type="button" data-act="google"><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>${esc(t("google"))}</button>
-      <p class="tv-or">${esc(t("orEmail"))}</p><p class="help">${esc(t("loginP"))}</p>
-      <div class="f"><label for="tvEmail">${esc(t("email"))}</label><input id="tvEmail" type="email" autocomplete="email" inputmode="email" required value="${esc(state.sentTo)}"></div>
-      <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(state.busy ? t("sending") : t("send"))}</button></div>
-      <p class="help tv-note">${esc(t("pupils"))}</p></form>`;
-  else if (state.view === "sent") inner = `<div class="card tv-card"><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("sentT"))}</h1><p class="help">${esc(t("sentP", state.sentTo))}</p>
-      <form class="tv-code" id="tvCode" novalidate><div class="f"><label for="tvCodeIn">${esc(t("codeL"))}</label><input id="tvCodeIn" inputmode="numeric" autocomplete="one-time-code" maxlength="10"></div>
-      <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(t("codeBtn"))}</button><button class="btn ghost" type="button" data-act="again">${esc(t("again"))}</button></div></form></div>`;
+  else if (state.view === "login") {
+    const up = state.authMode === "up";
+    inner = `<div class="card tv-card"><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(up ? t("signupT") : t("loginT"))}</h1>
+      <div class="seg tv-tabs" role="group"><button type="button" class="segbtn" data-act="amode" data-v="in" aria-pressed="${!up}">${esc(t("tabIn"))}</button><button type="button" class="segbtn" data-act="amode" data-v="up" aria-pressed="${up}">${esc(t("tabUp"))}</button></div>
+      <button class="btn google" type="button" data-act="google">${GOOGLE_SVG}${esc(t("google"))}</button>
+      <p class="tv-or">${esc(t("orPass"))}</p>
+      <form id="tvLogin" class="tv-form" novalidate>
+        <div class="f"><label for="tvEmail">${esc(t("email"))}</label><input id="tvEmail" type="email" autocomplete="${up ? "email" : "username"}" inputmode="email" required value="${esc(state.sentTo)}"></div>
+        <div class="f"><label for="tvPass">${esc(t("password"))}</label><input id="tvPass" type="password" autocomplete="${up ? "new-password" : "current-password"}" required>${up ? `<span class="help">${esc(t("passRule"))}</span>` : ""}</div>
+        <label class="check-row tv-show"><input type="checkbox" id="tvShow"><span>${esc(t("showPass"))}</span></label>
+        <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(state.busy ? (up ? t("busyUp") : t("busyIn")) : up ? t("signUp") : t("signIn"))}</button>
+          ${up ? "" : `<button class="linkbtn" type="button" data-act="forgot">${esc(t("forgot"))}</button>`}</div>
+        ${!up && state.unconfirmed ? `<div class="row"><button class="btn ghost small" type="button" data-act="resend">${esc(t("resend"))}</button></div>` : ""}
+      </form>
+      ${up ? "" : `<p class="help">${esc(t("oldUsers"))}</p>`}
+      <p class="help tv-note">${esc(t("pupils"))}</p></div>`;
+  } else if (state.view === "confirm") inner = `<div class="card tv-card"><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("confirmT"))}</h1><p class="help">${esc(t("confirmP", state.sentTo))}</p>
+      <div class="row"><button class="btn ghost" type="button" data-act="resend">${esc(t("resend"))}</button><button class="linkbtn" type="button" data-act="tologin">${esc(t("toLogin"))}</button></div></div>`;
+  else if (state.view === "forgot") inner = `<form class="card tv-card" id="tvForgot" novalidate><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("forgotT"))}</h1><p class="help">${esc(t("forgotP"))}</p>
+      <div class="f"><label for="tvEmail">${esc(t("email"))}</label><input id="tvEmail" type="email" autocomplete="username" inputmode="email" required value="${esc(state.sentTo)}"></div>
+      <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(t("sendReset"))}</button><button class="linkbtn" type="button" data-act="tologin">${esc(t("toLogin"))}</button></div></form>`;
+  else if (state.view === "resetsent") inner = `<div class="card tv-card"><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("forgotT"))}</h1><p class="help">${esc(t("resetSentP", state.sentTo))}</p>
+      <div class="row"><button class="linkbtn" type="button" data-act="tologin">${esc(t("toLogin"))}</button></div></div>`;
+  else if (state.view === "newpass") inner = `<form class="card tv-card" id="tvNewPass" novalidate><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("newPassT"))}</h1><p class="help">${esc(t("newPassP"))}</p>
+      <input type="email" autocomplete="username" value="${esc(state.session ? state.session.user.email : "")}" hidden>
+      <div class="f"><label for="tvPass">${esc(t("password"))}</label><input id="tvPass" type="password" autocomplete="new-password" required><span class="help">${esc(t("passRule"))}</span></div>
+      <label class="check-row tv-show"><input type="checkbox" id="tvShow"><span>${esc(t("showPass"))}</span></label>
+      <div class="row"><button class="btn" type="submit"${state.busy ? " disabled" : ""}>${esc(t("savePass"))}</button></div></form>`;
   else if (state.view === "noaccess") inner = `<div class="card tv-card"><p class="kicker">Bubble Sort</p><h1 class="h1">${esc(t("noAccessT"))}</h1>
       <p class="help">${esc(t("noAccessP", state.session ? state.session.user.email : ""))}</p><div class="row"><button class="btn ghost" type="button" data-act="signout">${esc(t("signout"))}</button></div></div>`;
   else if (state.view === "home") inner = state.page === "classes" ? classesHtml() : state.page === "library" && state.lib ? libraryHtml() : state.page === "class" && state.cls ? classHtml() : homeHtml();
@@ -420,15 +466,8 @@ function homeHtml() {
     <button class="btn ghost small" type="button" data-act="bk-json"${state.backingUp ? " disabled" : ""}>${esc(t("backupJson"))}</button></div></section>`;
   if (me.is_admin) {
     const a = state.admin;
-    html += `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("teachersT"))}</h2><ul class="tv-list">` +
-      a.teachers.map((x) => `<li><b>${esc(x.email)}</b>${x.id === me.id ? ` <span class="tag">${esc(t("you"))}</span>` : ""}${x.is_admin ? ` <span class="tag">${esc(t("admin"))}</span>` : ""}<span class="tv-date">${esc(t("since"))} ${esc(fmtDate(x.created_at))}</span></li>`).join("") + `</ul>
-      <h2 class="h2">${esc(t("invitesT"))}</h2><p class="help">${esc(t("invitesP"))}</p>
-      <form class="row tv-invite" id="tvInvite" novalidate><input id="tvInviteIn" type="email" autocomplete="off" placeholder="colleague@school.me" aria-label="${esc(t("email"))}"><button class="btn small" type="submit">${esc(t("invite"))}</button></form>
-      ${a.invites.length ? `<ul class="tv-list">` + a.invites.map((i) => `<li><b>${esc(i.email)}</b><span class="tv-date">${esc(fmtDate(i.created_at))}</span>` +
-        (state.confirmInvite === i.email
-          ? `<span class="tv-confirm">${esc(t("removeQ"))} <button class="btn danger small" type="button" data-act="rm-yes" data-email="${esc(i.email)}">${esc(t("yes"))}</button><button class="btn ghost small" type="button" data-act="rm-no">${esc(t("no"))}</button></span>`
-          : `<button class="btn ghost small" type="button" data-act="rm" data-email="${esc(i.email)}">${esc(t("remove"))}</button>`) + `</li>`).join("") + `</ul>` : `<p class="help">${esc(t("noInvites"))}</p>`}
-    </section>`;
+    html += `<section class="card tv-wide"><h2 class="h2" style="margin-top:0">${esc(t("teachersT"))} · ${a.teachers.length}</h2><ul class="tv-list">` +
+      a.teachers.map((x) => `<li><b>${esc(x.email)}</b>${x.id === me.id ? ` <span class="tag">${esc(t("you"))}</span>` : ""}${x.is_admin ? ` <span class="tag">${esc(t("admin"))}</span>` : ""}<span class="tv-date">${esc(t("since"))} ${esc(fmtDate(x.created_at))}</span></li>`).join("") + `</ul></section>`;
   }
   return html;
 }
@@ -856,12 +895,13 @@ function libraryHtml() {
   let body = "";
   if (L.tab === "mine") {
     body = L.mine.length ? `<ul class="tv-list lib-list">` + L.mine.map((x) => {
-      const rec = L.shares[x.id] || [], avail = L.dir.filter((d) => rec.indexOf(d.id) < 0);
+      const rec = L.shares[x.id] || [];
       return `<li><div class="lib-main"><b>${esc(x.title || "—")}</b><span class="tv-date" style="margin-left:0">${meta(x)}</span></div>
         <div class="seg" role="group" aria-label="${esc(t("libAccess"))}"><button type="button" class="segbtn" data-act="vis" data-id="${esc(x.id)}" data-v="private" aria-pressed="${x.visibility !== "public"}">${esc(t("libPrivate"))}</button><button type="button" class="segbtn" data-act="vis" data-id="${esc(x.id)}" data-v="public" aria-pressed="${x.visibility === "public"}">${esc(t("libPublicOne"))}</button></div>
         <button class="btn ghost small" type="button" data-act="shareopen" data-id="${esc(x.id)}">${esc(t("libSend"))}${rec.length ? ` · ${rec.length}` : ""}</button>
         ${L.shareOpen === x.id ? `<div class="lib-share">${rec.length ? `<p class="lbl">${esc(t("libSentTo"))}</p><div class="lib-chips">${rec.map((id) => `<span class="lib-chip">${esc(email(id))}<button type="button" data-act="unshare" data-id="${esc(x.id)}" data-t="${esc(id)}" aria-label="${esc(t("remove"))}">×</button></span>`).join("")}</div>` : ""}
-          ${avail.length ? `<div class="row"><select id="shareTo" aria-label="${esc(t("libColleague"))}">${avail.map((d) => `<option value="${esc(d.id)}">${esc(d.email)}</option>`).join("")}</select><button class="btn small" type="button" data-act="share" data-id="${esc(x.id)}">${esc(t("libSendBtn"))}</button></div>` : `<p class="help">${esc(t("libNoColleagues"))}</p>`}</div>` : ""}
+          <label class="lbl" for="shareTo">${esc(t("libSendTo"))}</label><div class="row"><input id="shareTo" type="email" inputmode="email" autocomplete="off" list="shareList" placeholder="${esc(t("libSendPh"))}"><datalist id="shareList">${L.dir.filter((d) => rec.indexOf(d.id) < 0).map((d) => `<option value="${esc(d.email)}">`).join("")}</datalist><button class="btn small" type="button" data-act="share" data-id="${esc(x.id)}">${esc(t("libSendBtn"))}</button></div>
+          <p class="help">${esc(t("libSendHelp"))}</p></div>` : ""}
       </li>`;
     }).join("") + `</ul>` : `<p class="help">${esc(t("noSetsYet"))}</p>`;
     body += `<p class="help" style="margin-top:12px">${esc(t("libMineP"))} <a class="linkbtn" href="#/teacher/sets">${esc(t("openWs"))}</a></p>`;
@@ -892,11 +932,24 @@ async function libraryAction(a, b) {
     L.mine.find((x) => x.id === id).visibility = b.dataset.v;
     state.msg = { kind: "ok", text: b.dataset.v === "public" ? t("libNowPublic") : t("libNowPrivate") }; render();
   } else if (a === "share") {
-    const to = root.querySelector("#shareTo").value;
-    const { error } = await supabase.from("set_shares").insert({ set_id: id, teacher_id: to, shared_by: state.teacher.id });
-    if (error) return fail(), true;
-    (L.shares[id] = L.shares[id] || []).push(to);
-    state.msg = { kind: "ok", text: t("libSent", (L.dir.find((d) => d.id === to) || {}).email || "") }; render();
+    const email = String(root.querySelector("#shareTo").value || "").trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { state.msg = { kind: "err", text: t("errEmail") }; render(); return true; }
+    if (email === String(state.teacher.email || "").toLowerCase()) { state.msg = { kind: "err", text: t("libSelf") }; render(); return true; }
+    let to = null;
+    const r = await supabase.rpc("share_set", { p_set: id, p_email: email });
+    if (!r.error) to = r.data;
+    else if (/teacher_not_found/.test(r.error.message || "")) { state.msg = { kind: "err", text: t("libNoTeacher", email) }; render(); return true; }
+    else {
+      // database not updated yet (no share_set): fall back to the old colleague list
+      const d = L.dir.find((x) => x.email === email);
+      if (!d) { state.msg = { kind: "err", text: t("libNoTeacher", email) }; render(); return true; }
+      const { error } = await supabase.from("set_shares").insert({ set_id: id, teacher_id: d.id, shared_by: state.teacher.id });
+      if (error && error.code !== "23505") return fail(), true;
+      to = d.id;
+    }
+    if (!L.dir.some((x) => x.id === to)) L.dir.push({ id: to, email });
+    if ((L.shares[id] = L.shares[id] || []).indexOf(to) < 0) L.shares[id].push(to);
+    state.msg = { kind: "ok", text: t("libSent", email) }; render();
   } else if (a === "unshare") {
     const { error } = await supabase.from("set_shares").delete().eq("set_id", id).eq("teacher_id", b.dataset.t);
     if (error) return fail(), true;
@@ -918,9 +971,13 @@ async function libraryAction(a, b) {
 function wire() {
   const q = (s) => root.querySelector(s);
   const login = q("#tvLogin");
-  if (login) { login.onsubmit = (e) => { e.preventDefault(); sendLink(q("#tvEmail").value); }; if (!state.busy) q("#tvEmail").focus(); }
-  const code = q("#tvCode");
-  if (code) code.onsubmit = (e) => { e.preventDefault(); verifyCode(q("#tvCodeIn").value); };
+  if (login) { login.onsubmit = (e) => { e.preventDefault(); passwordAuth(); }; if (!state.busy && !matchMedia("(pointer:coarse)").matches) (q("#tvEmail").value ? q("#tvPass") : q("#tvEmail")).focus(); }
+  const fg = q("#tvForgot");
+  if (fg) fg.onsubmit = (e) => { e.preventDefault(); sendReset(); };
+  const np = q("#tvNewPass");
+  if (np) np.onsubmit = (e) => { e.preventDefault(); saveNewPass(); };
+  const sh = q("#tvShow");
+  if (sh) sh.onchange = () => { q("#tvPass").type = sh.checked ? "text" : "password"; };
   const nc = q("#newClass");
   if (nc) nc.onsubmit = (e) => { e.preventDefault(); createClass(q("#newClassIn").value); };
   const rn = q("#clsRename");
@@ -931,8 +988,6 @@ function wire() {
     inp.oninput = () => { state.cls.nameDraft = inp.value; sync(); };
     rn.onsubmit = async (e) => { e.preventDefault(); const v = inp.value.trim(); if (!v || v === state.cls.row.name) return; if (await classUpdate({ name: v }, t("renamed"))) state.cls.nameDraft = null; };
   }
-  const inv = q("#tvInvite");
-  if (inv) inv.onsubmit = (e) => { e.preventDefault(); addInvite(q("#tvInviteIn").value); };
   root.querySelectorAll("[data-act]").forEach((b) => {
     b.onclick = () => {
       const a = b.dataset.act;
@@ -943,10 +998,10 @@ function wire() {
   });
   function other(a, b) {
       if (a === "signout") signOut();
-      else if (a === "again") { state.view = "login"; state.msg = null; render(); }
-      else if (a === "rm") { state.confirmInvite = b.dataset.email; render(); }
-      else if (a === "rm-no") { state.confirmInvite = null; render(); }
-      else if (a === "rm-yes") removeInvite(b.dataset.email);
+      else if (a === "amode") { const em = q("#tvEmail"); if (em) state.sentTo = em.value.trim(); state.authMode = b.dataset.v; state.msg = null; state.unconfirmed = false; render(); }
+      else if (a === "forgot") { const em = q("#tvEmail"); if (em) state.sentTo = em.value.trim(); state.view = "forgot"; state.msg = null; render(); }
+      else if (a === "tologin") { state.view = "login"; state.authMode = "in"; state.msg = null; render(); }
+      else if (a === "resend") resendConfirm();
       else if (a === "demo") importDemo();
       else if (a === "google") signInGoogle();
       else if (a === "bk-xlsx") backup("xlsx");

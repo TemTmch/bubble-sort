@@ -363,6 +363,12 @@ Object.assign(I18N.en, { gMoveCopy: "Copy or move this group to another set", gT
   gCopied: function (g, x) { return "“" + g + "” copied to “" + x + "”. Remember to save."; }, gMoved: function (g, x) { return "“" + g + "” moved to “" + x + "”. Remember to save."; } });
 Object.assign(I18N.tr, { gMoveCopy: "Bu grubu başka bir sete kopyala veya taşı", gToSet: "Hedef set", gCopy: "Kopyala", gMove: "Taşı",
   gCopied: function (g, x) { return "«" + g + "» grubu «" + x + "» setine kopyalandı. Kaydetmeyi unutmayın."; }, gMoved: function (g, x) { return "«" + g + "» grubu «" + x + "» setine taşındı. Kaydetmeyi unutmayın."; } });
+Object.assign(I18N.ru, { gCopyShort: "В другой набор", gBulk: "Копировать группы в другой набор", gPick: "Какие группы", gAll: "Выбрать все / снять",
+  gNewSet: "+ Новый набор", gNone: "Отметьте хотя бы одну группу.", gPart: "часть", gBulkHelp: "Если в наборе уже есть группа с таким названием, новые слова добавятся в неё без повторов." });
+Object.assign(I18N.en, { gCopyShort: "To another set", gBulk: "Copy groups to another set", gPick: "Which groups", gAll: "Select all / none",
+  gNewSet: "+ New set", gNone: "Tick at least one group.", gPart: "part", gBulkHelp: "If the set already has a group with the same name, new words are added to it without duplicates." });
+Object.assign(I18N.tr, { gCopyShort: "Başka sete", gBulk: "Grupları başka bir sete kopyala", gPick: "Hangi gruplar", gAll: "Tümünü seç / kaldır",
+  gNewSet: "+ Yeni set", gNone: "En az bir grup işaretleyin.", gPart: "bölüm", gBulkHelp: "Sette aynı adlı bir grup varsa yeni kelimeler tekrar olmadan ona eklenir." });
 I18N.ru.offlineNote = "Нет интернета. Играть можно: результаты сохранятся на сервере, когда связь вернётся.";
 I18N.en.offlineNote = "No internet. You can still play: results will be saved when the connection is back.";
 I18N.tr.offlineNote = "İnternet yok. Yine de oynayabilirsin: sonuçlar bağlantı gelince kaydedilecek.";
@@ -383,6 +389,9 @@ I18N.ru.savedDb = "Сохранено в вашей библиотеке."; I18N
 I18N.ru.saveDbErr = "Не удалось сохранить. Проверьте интернет и попробуйте снова."; I18N.en.saveDbErr = "Couldn't save. Check your connection and try again."; I18N.tr.saveDbErr = "Kaydedilemedi. Bağlantınızı kontrol edip tekrar deneyin.";
 I18N.ru.dbHint = "Наборы видите только вы. Ученики получат их через классы."; I18N.en.dbHint = "Only you can see these sets. Pupils get them through classes."; I18N.tr.dbHint = "Bu setleri yalnızca siz görürsünüz. Öğrenciler onlara sınıflar üzerinden ulaşır.";
 I18N.ru.teacherLogin = "Вход для учителей →"; I18N.en.teacherLogin = "Teacher sign-in →"; I18N.tr.teacherLogin = "Öğretmen girişi →";
+Object.assign(I18N.ru, { teacherTop: "Вход для учителей", teacherTopShort: "Учителю" });
+Object.assign(I18N.en, { teacherTop: "Teacher sign-in", teacherTopShort: "Teachers" });
+Object.assign(I18N.tr, { teacherTop: "Öğretmen girişi", teacherTopShort: "Öğretmen" });
 I18N.ru.teacherEntry = "Я учитель — открыть мастерскую наборов";
 I18N.en.teacherEntry = "I'm a teacher — open the word-set workshop";
 I18N.tr.teacherEntry = "Öğretmenim — kelime seti atölyesini aç";
@@ -557,6 +566,7 @@ $("#app").innerHTML =
       '<button class="chipbtn" id="soundBtn" type="button" aria-pressed="false" data-i18n="sound"></button>' +
       '<label class="chipbtn langpick"><span class="sr-only" data-i18n="langLabel"></span><select id="langSel">' + UI_LANGS.map(function (l) { return '<option value="' + l[0] + '" lang="' + l[0] + '" title="' + l[2] + '">' + l[1] + "</option>"; }).join("") + "</select></label>" +
       '<button class="chipbtn" id="teacherBtn" type="button" hidden><span class="dot" id="teacherDot" hidden></span><span data-i18n="teacher"></span></button>' +
+      (STANDALONE && !TEACHER_UI ? '<a class="btn small teacher-top" id="teacherTop" href="#/teacher"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3zm-7 9.2V16c0 1.7 3.1 3 7 3s7-1.3 7-3v-3.8l-7 3.8-7-3.8z"/></svg><span class="tt-long" data-i18n="teacherTop"></span><span class="tt-short" data-i18n="teacherTopShort"></span></a>' : "") +
     '</div>' +
   '</header>' +
   '<main class="stage" id="stage">' +
@@ -1397,7 +1407,6 @@ function renderHome() {
     t("rules").map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + '</ul><h2 class="h2">' + esc(STANDALONE ? t("demoSets") : t("chooseSet")) + "</h2>" +
     (cards ? '<div class="sets">' + cards + "</div>" : '<p class="empty">' + esc(t("noSets")) + "</p>") +
     '<p class="kbdhelp">' + t("kbdHelp") + "</p>" +
-    (STANDALONE && !TEACHER_UI ? '<p class="teacher-entry"><a class="linkbtn" href="#/teacher">' + esc(t("teacherLogin")) + "</a></p>" : "") +
     (canEdit || !TEACHER_UI ? "" : '<p class="teacher-entry"><button class="linkbtn" type="button" id="teacherEntry">' + esc(t("teacherEntry")) + "</button></p>") + "</div>";
   $$(".setcard", h).forEach(function (btn) {
     btn.onclick = function () { var s = SETS.find(function (x) { return x.id === btn.dataset.set; }); if (s) openLevels(s); };
@@ -1767,16 +1776,16 @@ function renderCardsPane(pane, s) {
         '<div class="row">' + (sw.img ? '<button class="btn ghost small" type="button" id="imgRemove">' + esc(t("picRemove")) + "</button>" : "") + '<button class="btn small" type="button" id="imgDone">' + esc(t("picDone")) + "</button></div></div></div>";
     }
   } else selChip = null;
+  if (s.cats.length > 1) html += '<div class="gbulk-row"><button class="btn ghost small" type="button" data-gmenu="bulk" aria-expanded="' + (groupMenu === "bulk") + '">⧉ ' + esc(t("gBulk")) + "</button></div>" +
+    (groupMenu === "bulk" ? gmenuHtml(s, null) : "");
   html += '<div class="gcards">' + s.cats.map(function (c, ci) {
     var n = c.words.length;
     return '<section class="gcard' + (n < 3 ? " short" : "") + '" data-ci="' + ci + '">' +
       '<div class="gcard-h"><input class="gname" type="text" id="gname-' + ci + '" data-ci="' + ci + '" value="' + esc(c.name) + '" placeholder="' + esc(t("groupName")) + '" aria-label="' + esc(t("groupName")) + '">' +
       '<span class="gcount">' + n + "</span>" +
-      (draft.length > 1 ? '<button class="iconbtn" type="button" data-gmenu="' + ci + '" aria-label="' + esc(t("gMoveCopy")) + '" aria-expanded="' + (groupMenu === ci) + '" title="' + esc(t("gMoveCopy")) + '">⇄</button>' : "") +
+      '<button class="gcopybtn" type="button" data-gmenu="' + ci + '" aria-expanded="' + (groupMenu === ci) + '" title="' + esc(t("gMoveCopy")) + '">⧉ ' + esc(t("gCopyShort")) + "</button>" +
       '<button class="iconbtn' + (armedGroup === ci ? " armed" : "") + '" type="button" data-delg="' + ci + '" aria-label="' + esc(t("delGroup")) + '">' + (armedGroup === ci ? esc(t("delGroupQ")) : "×") + "</button></div>" +
-      (groupMenu === ci ? '<div class="gmenu"><label class="lbl" for="gTarget">' + esc(t("gToSet")) + '</label><select id="gTarget">' +
-        draft.filter(function (x) { return x.id !== s.id; }).map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.title || t("untitled")) + "</option>"; }).join("") +
-        '</select><div class="row"><button class="btn small" type="button" data-gcopy="' + ci + '">' + esc(t("gCopy")) + '</button><button class="btn ghost small" type="button" data-gmove="' + ci + '">' + esc(t("gMove")) + '</button><button class="btn ghost small" type="button" data-gclose="1">' + esc(t("cancel")) + "</button></div></div>" : "") +
+      (groupMenu === ci ? gmenuHtml(s, [ci]) : "") +
       '<div class="wchips">' + c.words.map(function (x, wi) {
         var sel = selChip && selChip.ci === ci && selChip.wi === wi;
         return '<button class="wchip' + (dup[x.w.toLowerCase()] ? " dup" : "") + (sel ? " sel" : "") + (x.img ? " haspic" : "") + '" type="button" draggable="true" data-ci="' + ci + '" data-wi="' + wi + '">' + picHtml(x, "wimg") +
@@ -1847,18 +1856,28 @@ function renderCardsPane(pane, s) {
     $("#selDel").onclick = function () { s.cats[selChip.ci].words.splice(selChip.wi, 1); selChip = null; changed(); renderPane(); };
     $("#selCancel").onclick = function () { selChip = null; renderPane(); };
   }
-  $$("[data-gmenu]", pane).forEach(function (b) { b.onclick = function () { var ci = +b.dataset.gmenu; groupMenu = groupMenu === ci ? -1 : ci; armedGroup = -1; renderPane(); }; });
+  $$("[data-gmenu]", pane).forEach(function (b) { b.onclick = function () { var ci = b.dataset.gmenu === "bulk" ? "bulk" : +b.dataset.gmenu; groupMenu = groupMenu === ci ? -1 : ci; armedGroup = -1; renderPane(); }; });
   $$("[data-gclose]", pane).forEach(function (b) { b.onclick = function () { groupMenu = -1; renderPane(); }; });
-  var groupTo = function (ci, move) {
-    var target = draft.find(function (x) { return x.id === $("#gTarget").value; }); if (!target) return;
-    var g = s.cats[ci]; if (!g) return;
-    mergeCats(target.cats = target.cats || [], [g]);
-    if (move) s.cats.splice(ci, 1);
+  var groupTo = function (move) {
+    var idx = groupMenu === "bulk"
+      ? $$("[data-gpick]", pane).filter(function (x) { return x.checked; }).map(function (x) { return +x.dataset.gpick; })
+      : [groupMenu];
+    var gs = idx.map(function (i) { return s.cats[i]; }).filter(Boolean);
+    if (!gs.length) { setStatus(t("gNone"), "err"); return; }
+    var tv = $("#gTarget").value, target;
+    if (tv === "__new") {
+      target = { id: uid(), title: gs.length === 1 ? gs[0].name || t("untitled") : (s.title || t("untitled")) + " — " + t("gPart"), grade: s.grade || "", lang: s.lang || "en-GB", cats: [] };
+      draft.push(target);
+    } else target = draft.find(function (x) { return x.id === tv; });
+    if (!target) return;
+    mergeCats(target.cats = target.cats || [], gs);
+    if (move) s.cats = s.cats.filter(function (c, i) { return idx.indexOf(i) < 0; });
     groupMenu = -1; changed(); renderPane();
-    setStatus(t(move ? "gMoved" : "gCopied", g.name || t("unnamedGroup"), target.title || t("untitled")), "ok");
+    var names = gs.map(function (g) { return g.name || t("unnamedGroup"); }).join(", ");
+    setStatus(t(move ? "gMoved" : "gCopied", names, target.title || t("untitled")), "ok");
   };
-  $$("[data-gcopy]", pane).forEach(function (b) { b.onclick = function () { groupTo(+b.dataset.gcopy, false); }; });
-  $$("[data-gmove]", pane).forEach(function (b) { b.onclick = function () { groupTo(+b.dataset.gmove, true); }; });
+  $$("[data-gdo]", pane).forEach(function (b) { b.onclick = function () { groupTo(b.dataset.gdo === "move"); }; });
+  $$("[data-gall]", pane).forEach(function (b) { b.onclick = function () { var bs = $$("[data-gpick]", pane), on = !bs.every(function (x) { return x.checked; }); bs.forEach(function (x) { x.checked = on; }); }; });
   $("#addGroup").onclick = function () { s.cats.push({ name: "", words: [] }); changed(); renderPane(); var g = $("#gname-" + (s.cats.length - 1)); if (g) g.focus(); };
 }
 
@@ -1902,6 +1921,21 @@ function renderCands(box, cands, opts) {
   box.innerHTML = html;
   $$("[data-apply]", box).forEach(function (b) { b.onclick = function () { opts.onApply(b.dataset.apply); }; });
   $$("[data-layout]", box).forEach(function (b) { b.onclick = function () { opts.onLayout(b.dataset.layout); }; });
+}
+/* Copy/move panel: one group (list = [ci]) or a choice of groups (list = null). */
+function gmenuHtml(s, list) {
+  var others = draft.filter(function (x) { return x.id !== s.id; });
+  var h = '<div class="gmenu' + (list ? "" : " bulk") + '">';
+  if (!list) h += '<p class="lbl">' + esc(t("gPick")) + '</p><div class="gpick">' + s.cats.map(function (c, ci) {
+    return '<label class="check-row"><input type="checkbox" data-gpick="' + ci + '"><span>' + esc(c.name || t("unnamedGroup")) + " <small>· " + c.words.length + "</small></span></label>";
+  }).join("") + '</div><button class="linkbtn" type="button" data-gall="1">' + esc(t("gAll")) + "</button>";
+  h += '<label class="lbl" for="gTarget">' + esc(t("gToSet")) + '</label><select id="gTarget">' +
+    others.map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.title || t("untitled")) + "</option>"; }).join("") +
+    '<option value="__new">' + esc(t("gNewSet")) + "</option></select>" +
+    '<div class="row"><button class="btn small" type="button" data-gdo="copy">' + esc(t("gCopy")) + '</button><button class="btn ghost small" type="button" data-gdo="move">' + esc(t("gMove")) +
+    '</button><button class="btn ghost small" type="button" data-gclose="1">' + esc(t("cancel")) + "</button></div>" +
+    (list ? "" : '<p class="help">' + esc(t("gBulkHelp")) + "</p>") + "</div>";
+  return h;
 }
 function mergeCats(into, cats) {
   cats.forEach(function (c) {
